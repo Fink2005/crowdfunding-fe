@@ -9,15 +9,29 @@ const Header = () => {
         <h1 className="text-lg font-semibold m-0 dark:text-white">fundhive.</h1>
       </NavLink>
       <nav>
-        <ul>
+        <ul className="flex items-center gap-6">
           <li className="font-mono">
             <NavLink
               to="/idea"
               className={({ isActive }) =>
-                isActive ? 'text-blue-500' : 'text-gray-700'
+                isActive
+                  ? 'text-blue-500'
+                  : 'text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400'
               }
             >
               Launch Your Idea
+            </NavLink>
+          </li>
+          <li className="font-mono">
+            <NavLink
+              to="/my-campaigns"
+              className={({ isActive }) =>
+                isActive
+                  ? 'text-blue-500'
+                  : 'text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400'
+              }
+            >
+              My Campaigns
             </NavLink>
           </li>
         </ul>

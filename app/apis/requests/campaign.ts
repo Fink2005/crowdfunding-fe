@@ -7,5 +7,11 @@ export const campaignRequests = {
     campaignId: number
     imageUrl: string
     creator: string
-  }) => apiClient.post('/campaigns/metadata', data)
+  }) => apiClient.post('/campaigns/metadata', data),
+  getCampaigns: (page: number = 1, limit: number = 10) =>
+    apiClient.get('/campaigns/metadata', {
+      params: { page, limit }
+    }),
+  getCampaignById: (id: string | number) =>
+    apiClient.get(`/campaigns/metadata/${id}`)
 }

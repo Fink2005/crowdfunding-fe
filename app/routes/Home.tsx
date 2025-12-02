@@ -1,5 +1,5 @@
-import { Welcome } from '../welcome/welcome'
+import CampaignCard from '@/components/homePage/CampaignCard'
 
 export default function Home() {
-  return <Welcome />
+  return <CampaignCard />
 }

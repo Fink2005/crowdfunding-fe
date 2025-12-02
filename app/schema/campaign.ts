@@ -12,7 +12,7 @@ export const campaignSchema = z.object({
   goal: z
     .number({ message: 'Funding goal must be a number' })
     .positive('Funding goal must be a positive number')
-    .min(1, 'Funding goal must be at least 1 ETH'),
+    .min(0.01, 'Funding goal must be at least 0.01 ETH'),
   image: z
     .instanceof(FileList)
     .refine((files) => files?.length === 1, 'Image is required')

@@ -44,7 +44,7 @@ const CampaignForm = () => {
     defaultValues: {
       campaignName: '',
       description: '',
-      goal: 0
+      goal: undefined
     }
   })
 
@@ -233,9 +233,7 @@ const CampaignForm = () => {
                     step="0.01"
                     placeholder="0.00"
                     {...field}
-                    onChange={(e) =>
-                      field.onChange(parseFloat(e.target.value) || 0)
-                    }
+                    onChange={(e) => field.onChange(parseFloat(e.target.value))}
                   />
                 </FormControl>
                 <FormMessage />
@@ -251,7 +249,7 @@ const CampaignForm = () => {
               <FormItem>
                 <FormLabel>Campaign Image</FormLabel>
                 <FormControl>
-                  <div className="border-2 border-dashed p-6 rounded-lg relative">
+                  <div className="border-2 border-dashed p-6 rounded-lg relative min-h-[300px] flex items-center justify-center">
                     {image.isUploading && (
                       <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                         <LoaderCircle className="animate-spin" size={40} />

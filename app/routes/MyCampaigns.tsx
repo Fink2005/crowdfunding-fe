@@ -156,24 +156,22 @@ function CampaignCard({
           </div>
           <div className="lg:hidden">
             <h3 className="text-2xl font-bold mb-2">{campaign.title}</h3>
-            <p className="text-sm text-muted-foreground line-clamp-2">
+            <p className="text-sm text-muted-foreground line-clamp-1">
               {campaign.description}
             </p>
           </div>
         </div>
 
-        {/* Campaign Info & Stats */}
         <div className="space-y-5">
           <div className="hidden lg:block">
-            <h3 className="text-2xl font-bold mb-2 line-clamp-2">
+            <h3 className="text-2xl font-bold mb-2 line-clamp-1">
               {campaign.title}
             </h3>
-            <p className="text-muted-foreground line-clamp-3">
+            <p className="text-muted-foreground line-clamp-2">
               {campaign.description}
             </p>
           </div>
 
-          {/* Stats Grid */}
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-linear-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 p-4 rounded-xl">
               <p className="text-xs text-blue-600 dark:text-blue-300 font-medium mb-1">

@@ -4,7 +4,7 @@ import { useInfiniteQuery } from '@tanstack/react-query'
 
 export const useGetCampaignMetadata = (initialPage = 1) => {
   return useInfiniteQuery<CampaignPagination, Error>({
-    queryKey: ['user-ranking'],
+    queryKey: ['campaign-list'],
     queryFn: async ({
       pageParam = initialPage
     }): Promise<CampaignPagination> => {

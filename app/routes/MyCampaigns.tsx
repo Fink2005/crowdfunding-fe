@@ -1,4 +1,5 @@
 import { useGetUserProfile } from '@/apis/queries/user'
+import { CampaignCardSkeleton } from '@/components/campaignCard/CampaignCardSkeleton'
 import { Button } from '@/components/ui/button'
 import { contractAbi, contractAddress } from '@/contract/ContractClient'
 import type { CampaignMetadata } from '@/types/campaign'
@@ -77,6 +78,48 @@ export default function MyCampaigns() {
         </Link>
       </div>
 
+      {/* Telegram Connection Banner */}
+      {!userProfile?.chatId && (userProfile?.campaigns?.length ?? 0) > 0 && (
+        <div className="mb-6 bg-linear-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 border-2 border-blue-200 dark:border-blue-800 rounded-xl p-6 shadow-lg">
+          <div className="flex items-start gap-4">
+            <div className="text-4xl">📢</div>
+            <div className="flex-1">
+              <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-2">
+                Stay Updated with Telegram Notifications
+              </h3>
+              <p className="text-sm text-blue-700 dark:text-blue-300 mb-4">
+                Connect your Telegram to receive real-time notifications when
+                backers contribute to your campaigns, when goals are reached,
+                and other important updates.
+              </p>
+              <Button
+                onClick={async () => {
+                  if (!address) return
+                  const { telegramRequests } =
+                    await import('@/apis/requests/telegram')
+                  const botUrl = await telegramRequests.connectBot(address)
+                  window.open(botUrl, '_blank')
+                }}
+                className="bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              >
+                🔔 Connect Telegram Now
+              </Button>
+            </div>
+            <button
+              onClick={() => {
+                // User can dismiss banner temporarily
+                const banner = document.querySelector('[data-telegram-banner]')
+                if (banner) (banner as HTMLElement).style.display = 'none'
+              }}
+              className="text-blue-400 hover:text-blue-600 dark:text-blue-500 dark:hover:text-blue-300 text-xl"
+              aria-label="Dismiss"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
       {!userProfile?.campaigns?.length ? (
         <div className="text-center py-16 max-w-md mx-auto">
           <div className="text-6xl mb-4">📋</div>
@@ -103,7 +146,6 @@ export default function MyCampaigns() {
     </div>
   )
 }
-
 function CampaignCard({
   campaign,
   onWithdraw,
@@ -122,11 +164,7 @@ function CampaignCard({
   }) as { data: ContractCampaign | undefined }
 
   if (!contractCampaign) {
-    return (
-      <div className="border rounded-lg p-6">
-        <LoaderCircle className="animate-spin" size={24} />
-      </div>
-    )
+    return <CampaignCardSkeleton />
   }
 
   const [creator, goal, deadline, totalFunded, claimed] = contractCampaign
@@ -135,7 +173,7 @@ function CampaignCard({
   const canWithdraw = !claimed && isGoalReached && isDeadlinePassed
 
   return (
-    <div className="border rounded-xl overflow-hidden hover:shadow-xl transition-all bg-card h-[400px]">
+    <div className="border rounded-xl overflow-hidden hover:shadow-xl transition-all bg-card lg:h-[400px]">
       <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr_300px] gap-6 p-6">
         <div className="space-y-3">
           <div className="relative h-48 lg:h-80 bg-linear-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-xl overflow-hidden group">

@@ -1,5 +1,6 @@
 import { useMediaQuery } from '@/apis/queries/media'
 import { useSendTelegramNotification } from '@/apis/queries/telegram'
+import { useGetUserProfile } from '@/apis/queries/user'
 import { campaignRequests } from '@/apis/requests/campaign'
 import TelegramDialog from '@/components/ideaPage/TelegramDialog'
 import { Button } from '@/components/ui/button'
@@ -17,6 +18,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { contractAbi, contractAddress } from '@/contract/ContractClient'
 import { campaignSchema, type CampaignFormData } from '@/schema/campaign'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useQueryClient } from '@tanstack/react-query'
 import { LoaderCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -36,8 +38,11 @@ const CampaignForm = () => {
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showTelegramDialog, setShowTelegramDialog] = useState(false)
   useState<CampaignFormData | null>(null)
   const { isConnected, address } = useAccount()
+  const { data: userProfile } = useGetUserProfile(address)
+  const queryClient = useQueryClient()
 
   const form = useForm<CampaignFormData>({
     resolver: zodResolver(campaignSchema),
@@ -143,6 +148,14 @@ const CampaignForm = () => {
         toast.success('Create campaign success!')
         form.reset()
         setIsSubmitting(false)
+
+        // Refetch campaign list on home page
+        queryClient.invalidateQueries({ queryKey: ['campaign-list'] })
+
+        // Show Telegram dialog if not connected
+        if (!userProfile?.chatId) {
+          setShowTelegramDialog(true)
+        }
       } catch (err) {
         console.error('Decode error:', err)
         toast.error('Failed to decode event')
@@ -233,7 +246,7 @@ const CampaignForm = () => {
                     step="0.01"
                     placeholder="0.00"
                     {...field}
-                    onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                    onChange={(e) => field.onChange(e.target.value)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -273,7 +286,7 @@ const CampaignForm = () => {
                           className="max-h-56 object-cover rounded"
                         />
                       ) : (
-                        <p>Click to upload</p>
+                        <p className="text-muted-foreground">Click to upload</p>
                       )}
                     </label>
                   </div>
@@ -298,8 +311,13 @@ const CampaignForm = () => {
         </form>
       </Form>
 
-      {!localStorage.getItem('telegram_connected') && (
-        <TelegramDialog address={address as any} />
+      {showTelegramDialog && address && (
+        <TelegramDialog
+          address={address}
+          onClose={() => setShowTelegramDialog(false)}
+          title="Get Notified About Contributions!"
+          description="Connect your Telegram to receive real-time notifications when backers contribute to your campaign."
+        />
       )}
     </div>
   )

@@ -1,4 +1,5 @@
 import { useGetCampaignMetadata } from '@/apis/queries/campaign'
+import { CampaignCardItemSkeleton } from '@/components/homePage/CampaignCardItemSkeleton'
 import { contractAbi, contractAddress } from '@/contract/ContractClient'
 import type { CampaignMetadata } from '@/types/campaign'
 import { LoaderCircle } from 'lucide-react'
@@ -85,11 +86,13 @@ function CampaignCardItem({ campaign }: { campaign: CampaignMetadata }) {
     query: { enabled: !!campaign.campaignId }
   }) as { data: ContractCampaign | undefined }
 
-  const progress = contractCampaign
-    ? Math.round(
-        (Number(contractCampaign[3]) / Number(contractCampaign[1])) * 100
-      )
-    : 0
+  if (!contractCampaign) {
+    return <CampaignCardItemSkeleton />
+  }
+
+  const [creator, goal, deadline, totalFunded, claimed] = contractCampaign
+  const progress = Math.round((Number(totalFunded) / Number(goal)) * 100)
+  const isDeadlinePassed = Date.now() > Number(deadline) * 1000
 
   return (
     <div className="border rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
@@ -115,25 +118,23 @@ function CampaignCardItem({ campaign }: { campaign: CampaignMetadata }) {
           {campaign.description}
         </p>
 
-        {contractCampaign && (
-          <div className="mb-4">
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-muted-foreground">
-                {formatEther(contractCampaign[3])} ETH
-              </span>
-              <span className="font-semibold">{progress}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-primary h-2 rounded-full transition-all duration-500"
-                style={{ width: `${Math.min(progress, 100)}%` }}
-              />
-            </div>
-            <div className="text-xs text-muted-foreground mt-1">
-              Goal: {formatEther(contractCampaign[1])} ETH
-            </div>
+        <div className="mb-4">
+          <div className="flex justify-between text-sm mb-2">
+            <span className="text-muted-foreground">
+              {formatEther(totalFunded)} ETH raised
+            </span>
+            <span className="font-semibold">{progress}%</span>
           </div>
-        )}
+          <div className="w-full bg-gray-200 dark:bg-gray-800 rounded-full h-2">
+            <div
+              className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
+              style={{ width: `${Math.min(progress, 100)}%` }}
+            />
+          </div>
+          <div className="text-xs text-muted-foreground mt-1">
+            Goal: {formatEther(goal)} ETH
+          </div>
+        </div>
 
         <div className="space-y-2">
           <div className="flex justify-between items-center text-sm">
@@ -144,12 +145,24 @@ function CampaignCardItem({ campaign }: { campaign: CampaignMetadata }) {
             </span>
           </div>
 
-          {campaign.createdAt && (
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-muted-foreground">Created:</span>
-              <span>{new Date(campaign.createdAt).toLocaleDateString()}</span>
-            </div>
-          )}
+          <div className="flex justify-between items-center text-sm">
+            <span className="text-muted-foreground">Status:</span>
+            <span
+              className={`text-xs font-semibold ${
+                claimed
+                  ? 'text-green-600 dark:text-green-400'
+                  : isDeadlinePassed
+                    ? 'text-red-600 dark:text-red-400'
+                    : 'text-blue-600 dark:text-blue-400'
+              }`}
+            >
+              {claimed
+                ? '✅ Claimed'
+                : isDeadlinePassed
+                  ? '⏰ Ended'
+                  : '🔥 Active'}
+            </span>
+          </div>
         </div>
 
         <Link to={`/campaign/${campaign._id}`}>

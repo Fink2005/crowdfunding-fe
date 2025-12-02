@@ -1,12 +1,14 @@
-import { useSendTelegramNotification } from '@/apis/queries/telegram'
+import { useGetUserProfile } from '@/apis/queries/user'
 import { campaignRequests } from '@/apis/requests/campaign'
 import { CampaignImage } from '@/components/campaignDetail/CampaignImage'
 import { CampaignInfo } from '@/components/campaignDetail/CampaignInfo'
 import { ContributeDialog } from '@/components/campaignDetail/ContributeDialog'
 import { FundingProgress } from '@/components/campaignDetail/FundingProgress'
 import { LoadingState } from '@/components/campaignDetail/LoadingState'
+import TelegramDialog from '@/components/ideaPage/TelegramDialog'
 import { Button } from '@/components/ui/button'
 import { contractAbi, contractAddress } from '@/contract/ContractClient'
+import { useContributionNotification } from '@/hooks/useContributionNotification'
 import type { CampaignMetadata } from '@/types/campaign'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router'
@@ -34,10 +36,10 @@ export default function CampaignDetail() {
   const [showContributeDialog, setShowContributeDialog] = useState(false)
   const [contributeAmount, setContributeAmount] = useState('')
   const [isContributing, setIsContributing] = useState(false)
+  const [showTelegramDialog, setShowTelegramDialog] = useState(false)
 
   const { isConnected, address } = useAccount()
-
-  const { mutate: sendNotification } = useSendTelegramNotification()
+  const { data: userProfile } = useGetUserProfile(address)
 
   const { data: contractCampaign, refetch: refetchCampaign } = useReadContract({
     address: contractAddress,
@@ -75,52 +77,20 @@ export default function CampaignDetail() {
     fetchCampaign()
   }, [id])
 
-  useEffect(() => {
-    if (txSuccess && campaign && address) {
-      toast.success('Contribution successful!')
-      setIsContributing(false)
-      setShowContributeDialog(false)
-
-      // Refetch and check if goal reached
-      setTimeout(async () => {
-        const result = await refetchCampaign()
-        const updated = result.data as ContractCampaign | undefined
-
-        if (updated) {
-          const goalReached = updated[3] >= updated[1]
-
-          sendNotification({
-            address: address as string,
-            message: `✅ <b>Contribution Successful!</b>\n\n🎯 Campaign: <b>${campaign.title}</b>\n💵 Your Contribution: <b>${contributeAmount} ETH</b>\n\nThank you for supporting this project! 🙏`,
-            campaignId: String(campaign.campaignId)
-          })
-
-          sendNotification({
-            address: campaign.creator,
-            message: `💰 <b>New Contribution Received!</b>\n\n🎯 Campaign: <b>${campaign.title}</b>\n💵 Amount: <b>${contributeAmount} ETH</b>\n👤 From: <code>${address}</code>\n\nThank you for your support! 🙏`,
-            campaignId: String(campaign.campaignId)
-          })
-
-          if (goalReached) {
-            sendNotification({
-              address: campaign.creator,
-              message: `🎉 <b>Congratulations! Campaign Goal Reached!</b>\n\n🎯 Campaign: <b>${campaign.title}</b>\n✅ Goal Achieved!\n\nYour campaign has successfully reached its funding goal! You can now withdraw the funds once the deadline has passed. 🚀`,
-              campaignId: String(campaign.campaignId)
-            })
-          }
-        }
-      }, 2000)
-
-      setContributeAmount('')
-    }
-  }, [
+  useContributionNotification({
     txSuccess,
     campaign,
     address,
     contributeAmount,
-    sendNotification,
-    refetchCampaign
-  ])
+    userHasTelegram: !!userProfile?.chatId,
+    refetchCampaign,
+    onSuccess: () => {
+      setIsContributing(false)
+      setShowContributeDialog(false)
+    },
+    onShowTelegramDialog: () => setShowTelegramDialog(true),
+    onResetAmount: () => setContributeAmount('')
+  })
 
   useEffect(() => {
     if (writeError) {
@@ -218,6 +188,7 @@ export default function CampaignDetail() {
       </div>
 
       {/* Additional Info Section */}
+      {/* Additional Info Section */}
       <div className="mt-12 border-t pt-8">
         <h2 className="text-2xl font-bold mb-6">About This Campaign</h2>
         <div className="prose prose-neutral dark:prose-invert max-w-none">
@@ -237,6 +208,15 @@ export default function CampaignDetail() {
         isContributing={isContributing}
         onConfirm={handleConfirmContribute}
       />
+
+      {showTelegramDialog && address && (
+        <TelegramDialog
+          address={address}
+          onClose={() => setShowTelegramDialog(false)}
+          title="Track Your Contribution!"
+          description="Connect your Telegram to receive updates about this campaign's progress and when it reaches its goal."
+        />
+      )}
     </div>
   )
 }

@@ -8,7 +8,7 @@ export const campaignSchema = z.object({
   description: z
     .string()
     .min(10, 'Description must be at least 10 characters')
-    .max(1000, 'Description must not exceed 1000 characters'),
+    .max(3000, 'Description must not exceed 3000 characters'),
   goal: z
     .number({ message: 'Funding goal must be a number' })
     .positive('Funding goal must be a positive number')

@@ -113,11 +113,15 @@ const CampaignForm = () => {
       try {
         const log = receipt.logs[0]
 
+        console.log(receipt.logs)
+
         const event = decodeEventLog({
           abi: contractAbi,
           data: log.data,
           topics: log.topics
         }) as { args?: Record<string, any> }
+
+        console.log(event)
 
         if (!event.args) {
           throw new Error('Invalid event args')
@@ -171,9 +175,10 @@ const CampaignForm = () => {
 
   const createCampaign = (data: CampaignFormData) => {
     const goalInWei = parseEther(String(data.goal))
-    const durationInSeconds = BigInt(data.deadline * 24 * 60 * 60)
+    const durationInSeconds = BigInt(300)
     const fee = BigInt(creationFee!.toString())
     setIsSubmitting(true)
+    // data.deadline * 24 * 60 *
 
     writeContract({
       address: contractAddress,

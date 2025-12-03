@@ -28,17 +28,33 @@ export default function MyCampaigns() {
   const [withdrawingId, setWithdrawingId] = useState<number | null>(null)
 
   const { data: userProfile, isLoading, refetch } = useGetUserProfile(address)
-  const { writeContract } = useWriteContract()
-  const { isSuccess: txSuccess } = useWaitForTransactionReceipt({
-    hash: useWriteContract().data
-  })
+  const { writeContract, data: txHash, error: writeError } = useWriteContract()
+  const { isSuccess: txSuccess, isError: txError } =
+    useWaitForTransactionReceipt({
+      hash: txHash
+    })
 
   useEffect(() => {
-    if (!txSuccess) return
-    toast.success('Withdrawal successful!')
-    setWithdrawingId(null)
-    refetch()
+    if (txSuccess) {
+      toast.success('Withdrawal successful!')
+      setWithdrawingId(null)
+      refetch()
+    }
   }, [txSuccess, refetch])
+
+  useEffect(() => {
+    if (txError) {
+      toast.error('Transaction failed! Please try again.')
+      setWithdrawingId(null)
+    }
+  }, [txError])
+
+  useEffect(() => {
+    if (writeError) {
+      toast.error(writeError.message || 'Failed to submit transaction')
+      setWithdrawingId(null)
+    }
+  }, [writeError])
 
   const handleWithdraw = (campaignId: number) => {
     setWithdrawingId(campaignId)
@@ -46,7 +62,8 @@ export default function MyCampaigns() {
       address: contractAddress,
       abi: contractAbi,
       functionName: 'withdraw',
-      args: [BigInt(campaignId)]
+      args: [BigInt(campaignId)],
+      gas: 500000n
     })
     toast.info('Processing withdrawal...')
   }
@@ -295,7 +312,7 @@ function CampaignCard({
 
         {/* Actions */}
         <div className="flex flex-col justify-between space-y-4 ">
-          <div className="space-y-2 mt-21">
+          <div className="space-y-2 ">
             {isGoalReached && (
               <div className="bg-linear-to-r from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950 border-2 border-green-300 dark:border-green-700 rounded-xl p-4 shadow-lg">
                 <div className="flex items-center gap-2 mb-2">
@@ -312,21 +329,29 @@ function CampaignCard({
           </div>
 
           <div className="space-y-3">
-            <Button
-              size="lg"
-              className="w-full bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all"
-              onClick={() => onWithdraw(campaign.campaignId)}
-              disabled={isWithdrawing}
-            >
-              {isWithdrawing ? (
-                <>
-                  <LoaderCircle className="animate-spin mr-2" size={16} />
-                  Withdrawing...
-                </>
-              ) : (
-                <>💰 Withdraw {formatEther(totalFunded)} ETH</>
-              )}
-            </Button>
+            {
+              <Button
+                size="lg"
+                className="w-full bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all"
+                onClick={() => onWithdraw(campaign.campaignId)}
+                disabled={isWithdrawing || claimed}
+              >
+                {isWithdrawing ? (
+                  <>
+                    <LoaderCircle className="animate-spin mr-2" size={16} />
+                    Withdrawing...
+                  </>
+                ) : (
+                  <>
+                    {claimed ? (
+                      <span>✅ Funds Withdrawn Successfully</span>
+                    ) : (
+                      <span>💰 Withdraw {formatEther(totalFunded)} ETH</span>
+                    )}
+                  </>
+                )}
+              </Button>
+            }
 
             <Link to={`/campaign/${campaign._id}`} className="block">
               <Button variant="outline" size="lg" className="w-full">
@@ -341,13 +366,6 @@ function CampaignCard({
                   {isGoalReached &&
                     !isDeadlinePassed &&
                     '⏰ Waiting for deadline'}
-                </p>
-              </div>
-            )}
-            {claimed && (
-              <div className="bg-linear-to-r from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 border-2 border-green-400 dark:border-green-600 rounded-lg p-4 text-center">
-                <p className="text-lg font-bold text-green-700 dark:text-green-300">
-                  ✅ Funds Withdrawn Successfully
                 </p>
               </div>
             )}

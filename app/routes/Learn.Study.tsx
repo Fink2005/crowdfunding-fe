@@ -1,6 +1,8 @@
+import { useFunFact } from '@/apis/queries/ai'
 import { useVocabularyWords } from '@/apis/queries/vocabulary'
 import { Button } from '@/components/ui/button'
 import { motion } from 'framer-motion'
+import { Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router'
 
@@ -18,6 +20,12 @@ export default function LearnStudy() {
 
   const words = vocabularyData?.data || []
   const currentWord = words[currentIndex]
+
+  const { data: funFactData, isLoading: isFunFactLoading } = useFunFact(
+    currentWord?.word || '',
+    targetLang,
+    !isFlipped && !!currentWord
+  )
 
   const handleNext = () => {
     setIsFlipped(false)
@@ -152,32 +160,66 @@ export default function LearnStudy() {
                 </div>
 
                 <div
-                  className="absolute inset-0 backface-hidden rounded-2xl p-12 flex flex-col items-center justify-center bg-linear-to-br from-green-500 to-teal-600 text-white shadow-2xl"
+                  className="absolute inset-0 backface-hidden rounded-2xl p-8 flex flex-col items-center justify-center bg-linear-to-br from-green-500 to-teal-600 text-white shadow-2xl overflow-y-auto"
                   style={{
                     backfaceVisibility: 'hidden',
                     transform: 'rotateY(180deg)'
                   }}
                 >
-                  <div className="text-sm uppercase tracking-wide mb-6 opacity-80">
+                  <div className="text-sm uppercase tracking-wide mb-4 opacity-80">
                     {targetLang === 'en'
                       ? 'English'
                       : targetLang === 'vi'
                         ? 'Vietnamese'
                         : 'Japanese'}
                   </div>
-                  <div className="text-5xl font-bold mb-8 text-center">
+                  <div className="text-4xl font-bold mb-6 text-center">
                     {currentWord?.meaning}
                   </div>
                   {currentWord?.example && (
-                    <div className="text-center">
+                    <div className="text-center mb-6">
                       <div className="text-xs uppercase tracking-wide mb-2 opacity-70">
                         Example
                       </div>
-                      <div className="text-lg italic opacity-90">
+                      <div className="text-base italic opacity-90">
                         "{currentWord.example}"
                       </div>
                     </div>
                   )}
+
+                  <div className="w-full mt-4 pt-4 border-t border-white/20">
+                    <div className="flex items-center justify-center gap-2 mb-3">
+                      <Sparkles size={16} className="animate-pulse" />
+                      <span className="text-xs uppercase tracking-wide font-semibold">
+                        Fun Fact
+                      </span>
+                      <Sparkles size={16} className="animate-pulse" />
+                    </div>
+                    {isFunFactLoading ? (
+                      <div className="flex items-center justify-center gap-2 py-4">
+                        <div
+                          className="w-2 h-2 bg-white rounded-full animate-bounce"
+                          style={{ animationDelay: '0ms' }}
+                        />
+                        <div
+                          className="w-2 h-2 bg-white rounded-full animate-bounce"
+                          style={{ animationDelay: '150ms' }}
+                        />
+                        <div
+                          className="w-2 h-2 bg-white rounded-full animate-bounce"
+                          style={{ animationDelay: '300ms' }}
+                        />
+                      </div>
+                    ) : funFactData?.content ? (
+                      <div className="text-sm leading-relaxed opacity-90 bg-white/10 rounded-lg p-4 backdrop-blur-sm max-h-32 overflow-y-auto">
+                        {funFactData.content}
+                      </div>
+                    ) : (
+                      <div className="text-xs opacity-60 italic text-center">
+                        No fun fact available
+                      </div>
+                    )}
+                  </div>
                 </div>
               </motion.div>
             </div>

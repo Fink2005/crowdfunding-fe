@@ -8,7 +8,8 @@ const mediaRequests = {
     signedUrl: string
   }> => {
     const response = await apiClient.get('/media/presign-url', {
-      payload
+      fileName: payload.fileName,
+      fileType: payload.fileType
     })
     return response.data
   }

@@ -1,0 +1,20 @@
+services:
+  crowdfunding-fe:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: crowdfunding-fe
+    ports:
+      - '8386:8386'
+    environment:
+      - NODE_ENV=production
+      - VITE_API_BASE_URL=${VITE_API_BASE_URL:-https://api.fundhive.pro.vn}
+      - VITE_WALLETCONNECT_PROJECT_ID=${VITE_WALLETCONNECT_PROJECT_ID}
+      - VITE_CONTRACT_ADDRESS=${VITE_CONTRACT_ADDRESS}
+    restart: unless-stopped
+    networks:
+      - crowdfunding-network
+
+networks:
+  crowdfunding-network:
+    driver: bridge

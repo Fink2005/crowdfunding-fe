@@ -55,6 +55,8 @@ const Header = () => {
       {/* Mobile Menu Button */}
       <div className="flex md:hidden items-center gap-2">
         <ModeToggle />
+        <ConnectButton showBalance={false} label="Connect Wallet" />
+
         <Button
           variant="ghost"
           size="icon"
@@ -99,11 +101,6 @@ const Header = () => {
                 >
                   📋 My Campaigns
                 </NavLink>
-              </li>
-              <li className="pt-4 border-t border-gray-200 dark:border-gray-800">
-                <div className="flex justify-center">
-                  <ConnectButton showBalance={false} label="Connect Wallet" />
-                </div>
               </li>
             </ul>
           </nav>

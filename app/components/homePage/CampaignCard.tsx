@@ -82,10 +82,12 @@ function CampaignCardItem({ campaign }: { campaign: CampaignMetadata }) {
     address: contractAddress,
     abi: contractAbi,
     functionName: 'getCampaign',
-    args: campaign.campaignId ? [BigInt(campaign.campaignId)] : undefined,
-    query: { enabled: !!campaign.campaignId }
+    args:
+      campaign.campaignId || campaign.campaignId === 0
+        ? [BigInt(campaign.campaignId)]
+        : undefined,
+    query: { enabled: campaign.campaignId === 0 ? true : !!campaign.campaignId }
   }) as { data: ContractCampaign | undefined }
-
   if (!contractCampaign) {
     return <CampaignCardItemSkeleton />
   }

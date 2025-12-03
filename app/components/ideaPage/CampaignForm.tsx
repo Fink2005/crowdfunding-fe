@@ -49,7 +49,8 @@ const CampaignForm = () => {
     defaultValues: {
       campaignName: '',
       description: '',
-      goal: undefined
+      goal: undefined,
+      deadline: 7
     }
   })
 
@@ -150,7 +151,7 @@ const CampaignForm = () => {
         setIsSubmitting(false)
 
         // Refetch campaign list on home page
-        queryClient.invalidateQueries({ queryKey: ['campaign-list'] })
+        queryClient.removeQueries({ queryKey: ['campaign-list'] })
 
         // Show Telegram dialog if not connected
         if (!userProfile?.chatId) {
@@ -178,7 +179,7 @@ const CampaignForm = () => {
 
   const createCampaign = (data: CampaignFormData) => {
     const goalInWei = parseEther(String(data.goal))
-    const durationInSeconds = BigInt(7 * 24 * 60 * 60)
+    const durationInSeconds = BigInt(data.deadline * 24 * 60 * 60)
     const fee = BigInt(creationFee!.toString())
 
     setIsSubmitting(true)
@@ -249,6 +250,31 @@ const CampaignForm = () => {
                     onChange={(e) => field.onChange(e.target.value)}
                   />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Deadline */}
+          <FormField
+            control={form.control}
+            name="deadline"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Deadline (Days)</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={60}
+                    placeholder="7"
+                    {...field}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
+                  />
+                </FormControl>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Campaign duration: 1-60 days
+                </p>
                 <FormMessage />
               </FormItem>
             )}

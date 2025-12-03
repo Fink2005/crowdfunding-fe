@@ -43,7 +43,7 @@ const TelegramDialog = ({
       }}
     >
       <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden">
-        <div className="bg-linear-to-br from-blue-500 via-purple-500 to-pink-500 p-6 text-white">
+        <div className="bg-blue-500 p-6 text-white">
           <div className="flex items-center gap-3 mb-3">
             <div className="text-4xl">📱</div>
             <DialogTitle className="text-2xl font-bold text-white">
@@ -68,8 +68,8 @@ const TelegramDialog = ({
                     notifications for new contributions
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span> Campaign milestone
-                    alerts
+                    <span className="text-green-500">✓</span>
+                    Goal achivement alerts
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-green-500">✓</span> Real-time campaign
@@ -100,7 +100,7 @@ const TelegramDialog = ({
           </Button>
           <Button
             onClick={handleConnectTelegram}
-            className="w-full sm:w-auto bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 order-1 sm:order-2"
+            className="w-full sm:w-auto bg-blue-500 text-white order-1 sm:order-2"
           >
             <span className="mr-2">🚀</span>
             Connect Telegram

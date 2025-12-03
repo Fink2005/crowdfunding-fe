@@ -18,7 +18,7 @@ export function LearnBanner() {
               <p className="text-sm text-green-50">
                 Answer <span className="font-bold">10 quiz questions</span>{' '}
                 correctly → Get{' '}
-                <span className="font-bold text-yellow-300">0.4 ETH</span>{' '}
+                <span className="font-bold text-yellow-300">0.02 ETH</span>{' '}
                 Sepolia for free! 🎁
               </p>
             </div>

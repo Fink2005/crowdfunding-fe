@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     container_name: crowdfunding-fe
     ports:
-      - '8386:8386'
+      - "8386:8386"
     environment:
       - NODE_ENV=production
       - VITE_API_BASE_URL=${VITE_API_BASE_URL:-https://api.fundhive.pro.vn}

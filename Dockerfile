@@ -17,4 +17,4 @@ COPY vite.config.ts react-router.config.ts ./
 
 EXPOSE 8386
 
-CMD ["pnpm", "exec", "vite", "preview", "--port", "8386", "--host"]
+CMD ["pnpm", "exec", "vite", "preview", "--host"]

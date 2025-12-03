@@ -21,6 +21,7 @@ export default defineConfig(({ mode }) => {
     preview: {
       port: 8386,
       host: true,
+      allowedHosts: ['fundhive.pro.vn'],
       proxy: {
         '/api': {
           target: env.VITE_API_BASE_URL,

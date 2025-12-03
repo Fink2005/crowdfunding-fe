@@ -1,3 +1,4 @@
+import { useSendTelegramNotification } from '@/apis/queries/telegram'
 import { useSubmitQuiz, useVocabularyQuiz } from '@/apis/queries/vocabulary'
 import FlashCard from '@/components/learn/FlashCard'
 import QuizResultDialog from '@/components/learn/QuizResultDialog'
@@ -41,17 +42,29 @@ export default function Learn() {
 
   // Contract interaction
   const { data: txHash, writeContract } = useWriteContract()
-  const { isSuccess: txSuccess } = useWaitForTransactionReceipt({
+  const { isSuccess: txSuccess, data: receipt } = useWaitForTransactionReceipt({
     hash: txHash
   })
+
+  // Telegram notification
+  const { mutate: sendNotification } = useSendTelegramNotification()
 
   const questions = quizData?.data || []
   const currentQ = questions[currentQuestion]
 
   // Handle successful transaction
   useEffect(() => {
-    if (txSuccess) {
+    if (txSuccess && receipt && address) {
+      const rewardAmount = '0.02'
+
+      // Send Telegram notification
+      sendNotification({
+        address: address,
+        message: `🎓 <b>Quiz Completed - Reward Claimed!</b>\n\n🏆 <b>Perfect Score:</b> 10/10\n💰 <b>Reward:</b> ${rewardAmount} ETH\n📝 <b>Transaction:</b> <code>${txHash}</code>\n\n🎉 Congratulations! Keep learning and earning more rewards! 🚀`
+      })
+
       toast.success('🎉 Congratulations! You earned 0.02 ETH!')
+
       // Reset quiz after short delay
       setTimeout(() => {
         setIsQuizStarted(false)
@@ -61,7 +74,7 @@ export default function Learn() {
         setQuizResult(null)
       }, 2000)
     }
-  }, [txSuccess])
+  }, [txSuccess, receipt, address, txHash, sendNotification])
 
   const handleStartQuiz = () => {
     if (!isConnected) {
@@ -100,7 +113,6 @@ export default function Learn() {
       { address, answers: finalAnswers },
       {
         onSuccess: (response) => {
-          // Show result dialog
           setQuizResult({
             score: response.data.score,
             total: response.data.total
@@ -108,7 +120,6 @@ export default function Learn() {
         },
         onError: () => {
           toast.error('Failed to submit quiz')
-          // Reset quiz
           setIsQuizStarted(false)
           setCurrentQuestion(0)
           setAnswers([])

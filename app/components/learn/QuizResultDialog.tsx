@@ -30,11 +30,9 @@ export default function QuizResultDialog({
   return (
     <Dialog open={isOpen}>
       <DialogContent className="sm:max-w-[450px] max-w-[95vw] p-0 overflow-hidden border-0">
-        {/* Animated Background */}
         <div className="absolute inset-0 bg-linear-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 dark:from-blue-500/5 dark:via-purple-500/5 dark:to-pink-500/5" />
 
         <div className="relative">
-          {/* Emoji & Title */}
           <div className="text-center pt-12 pb-6 px-6">
             <motion.div
               initial={{ scale: 0, rotate: -180 }}
@@ -134,7 +132,6 @@ export default function QuizResultDialog({
             </motion.div>
           )}
 
-          {/* Stats Cards */}
           <div className="px-6 pb-6">
             <div className="grid grid-cols-2 gap-3">
               <motion.div
@@ -166,7 +163,6 @@ export default function QuizResultDialog({
             </div>
           </div>
 
-          {/* Action Button */}
           <div className="px-6 pb-6">
             {isPerfect ? (
               <Button

@@ -54,16 +54,13 @@ const CampaignForm = () => {
     }
   })
 
-  // Watch file input
   const imageFiles = form.watch('image')
 
-  // Request signed URL
   const { data: signed } = useMediaQuery({
     fileName: imageFiles && imageFiles[0]?.name,
     fileType: imageFiles && imageFiles[0]?.type
   })
 
-  // Handle image upload
   useEffect(() => {
     ;(async () => {
       if (imageFiles && imageFiles[0]) {
@@ -74,7 +71,6 @@ const CampaignForm = () => {
           setImage((prev) => ({ ...prev, url: reader.result as string }))
         }
         reader.readAsDataURL(imageFiles[0])
-
         try {
           if (signed) {
             await fetch(signed.signedUrl, {
@@ -139,7 +135,6 @@ const CampaignForm = () => {
           creator: address as `0x${string}`
         })
 
-        // Send Telegram notification
         sendNotification({
           address: address as string,
           message: `🎉 <b>Campaign Created Successfully!</b>\n\n🎯 Campaign: <b>${campaignName}</b>\n💰 Goal: <b>${goal} ETH</b>\n🆔 Campaign ID: <code>${campaignId}</code>\n\nYour campaign is now live! Share it with your network to start receiving contributions. 🚀`,
@@ -150,10 +145,8 @@ const CampaignForm = () => {
         form.reset()
         setIsSubmitting(false)
 
-        // Refetch campaign list on home page
         queryClient.removeQueries({ queryKey: ['campaign-list'] })
 
-        // Show Telegram dialog if not connected
         if (!userProfile?.chatId) {
           setShowTelegramDialog(true)
         }
@@ -164,7 +157,6 @@ const CampaignForm = () => {
     })()
   }, [txSuccess, receipt])
 
-  // 🛑 Transaction error
   useEffect(() => {
     if (writeError) {
       toast.error(writeError.message || 'Transaction failed')
@@ -181,7 +173,6 @@ const CampaignForm = () => {
     const goalInWei = parseEther(String(data.goal))
     const durationInSeconds = BigInt(data.deadline * 24 * 60 * 60)
     const fee = BigInt(creationFee!.toString())
-
     setIsSubmitting(true)
 
     writeContract({
@@ -219,7 +210,6 @@ const CampaignForm = () => {
             )}
           />
 
-          {/* Description */}
           <FormField
             control={form.control}
             name="description"
@@ -234,7 +224,6 @@ const CampaignForm = () => {
             )}
           />
 
-          {/* Goal */}
           <FormField
             control={form.control}
             name="goal"
@@ -247,7 +236,7 @@ const CampaignForm = () => {
                     step="0.01"
                     placeholder="0.00"
                     {...field}
-                    onChange={(e) => field.onChange(e.target.value)}
+                    onChange={(e) => field.onChange(parseFloat(e.target.value))}
                   />
                 </FormControl>
                 <FormMessage />
@@ -255,7 +244,6 @@ const CampaignForm = () => {
             )}
           />
 
-          {/* Deadline */}
           <FormField
             control={form.control}
             name="deadline"
@@ -322,7 +310,6 @@ const CampaignForm = () => {
             )}
           />
 
-          {/* Submit */}
           <Button
             disabled={isSubmitting || !isConnected}
             type="submit"

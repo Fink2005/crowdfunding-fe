@@ -13,6 +13,7 @@ export default [
     route('my-campaigns', './routes/MyCampaigns.tsx'),
     route('learn', './routes/Learn.tsx'),
     route('learn/study', './routes/Learn.Study.tsx'),
-    route('learn/quiz', './routes/Learn.Quiz.tsx')
+    route('learn/quiz', './routes/Learn.Quiz.tsx'),
+    route('learn/add', './routes/Learn.Add.tsx')
   ])
 ] satisfies RouteConfig

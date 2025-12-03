@@ -7,8 +7,10 @@ const mediaRequests = {
   }): Promise<{
     signedUrl: string
   }> => {
-    const { data } = await apiClient.get('/media/presign-url', payload)
-    return data
+    const response = await apiClient.get('/media/presign-url', {
+      payload
+    })
+    return response.data
   }
 }
 

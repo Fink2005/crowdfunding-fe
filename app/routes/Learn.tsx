@@ -18,19 +18,18 @@ export default function Learn() {
         </div>
 
         {/* Action Cards */}
-        <div className="grid md:grid-cols-2 gap-6 mb-12">
+        <div className="grid md:grid-cols-3 gap-6 mb-12">
           {/* Study Card */}
           <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 border-2 border-blue-200 dark:border-blue-800 rounded-2xl p-8 hover:shadow-xl transition-shadow">
             <div className="text-6xl mb-4">📚</div>
-            <h2 className="text-3xl font-bold mb-3">Study Vocabulary</h2>
+            <h2 className="text-2xl font-bold mb-3">Study Vocabulary</h2>
             <p className="text-muted-foreground mb-6">
-              Learn new words with interactive flashcards. Flip cards to see
-              meanings and examples.
+              Learn new words with interactive flashcards.
             </p>
             <Link to="/learn/study">
               <Button
                 size="lg"
-                className="w-full h-14 text-lg bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+                className="w-full h-12 text-base bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
               >
                 Start Learning →
               </Button>
@@ -40,17 +39,33 @@ export default function Learn() {
           {/* Quiz Card */}
           <div className="bg-gradient-to-br from-green-50 to-teal-50 dark:from-green-950 dark:to-teal-950 border-2 border-green-200 dark:border-green-800 rounded-2xl p-8 hover:shadow-xl transition-shadow">
             <div className="text-6xl mb-4">🎯</div>
-            <h2 className="text-3xl font-bold mb-3">Take Quiz</h2>
+            <h2 className="text-2xl font-bold mb-3">Take Quiz</h2>
             <p className="text-muted-foreground mb-6">
-              Test your knowledge with 10 questions. Get 10/10 correct and earn
-              0.02 ETH instantly!
+              Test your knowledge and earn 0.02 ETH!
             </p>
             <Link to="/learn/quiz">
               <Button
                 size="lg"
-                className="w-full h-14 text-lg bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600"
+                className="w-full h-12 text-base bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600"
               >
-                Take Quiz Now →
+                Take Quiz →
+              </Button>
+            </Link>
+          </div>
+
+          {/* Add Vocabulary Card */}
+          <div className="bg-gradient-to-br from-orange-50 to-yellow-50 dark:from-orange-950 dark:to-yellow-950 border-2 border-orange-200 dark:border-orange-800 rounded-2xl p-8 hover:shadow-xl transition-shadow">
+            <div className="text-6xl mb-4">✨</div>
+            <h2 className="text-2xl font-bold mb-3">Add Vocabulary</h2>
+            <p className="text-muted-foreground mb-6">
+              Contribute new words to the learning system.
+            </p>
+            <Link to="/learn/add">
+              <Button
+                size="lg"
+                className="w-full h-12 text-base bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600"
+              >
+                Add Words →
               </Button>
             </Link>
           </div>

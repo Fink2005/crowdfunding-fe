@@ -46,7 +46,6 @@ export function useContributionNotification({
     toast.success('Contribution successful!')
     onSuccess()
 
-    // Refetch and send notifications
     setTimeout(async () => {
       const result = await refetchCampaign()
       const updated = result.data
@@ -61,23 +60,20 @@ export function useContributionNotification({
       // Notify contributor
       sendNotification({
         address: address as string,
-        message: `✅ <b>Contribution Successful!</b>\n\n🎯 Campaign: <b>${campaign.title}</b>\n💵 Your Contribution: <b>${contributeAmount} ETH</b>\n📊 Progress: <b>${progress}%</b> of goal\n\nThank you for supporting this project! 🙏`,
-        campaignId: String(campaign.campaignId)
+        message: `✅ <b>Contribution Successful!</b>\n\n🎯 Campaign: <b>${campaign.title}</b>\n💵 Your Contribution: <b>${contributeAmount} ETH</b>\n📊 Progress: <b>${progress}%</b> of goal\n\nThank you for supporting this project! 🙏`
       })
 
       // Notify creator
       sendNotification({
         address: campaign.creator,
-        message: `💰 <b>New Contribution Received!</b>\n\n🎯 Campaign: <b>${campaign.title}</b>\n💵 Amount: <b>${contributeAmount} ETH</b>\n📊 Progress: <b>${progress}%</b> of goal\n👤 From: <code>${address}</code>\n\nThank you for your support! 🙏`,
-        campaignId: String(campaign.campaignId)
+        message: `💰 <b>New Contribution Received!</b>\n\n🎯 Campaign: <b>${campaign.title}</b>\n💵 Amount: <b>${contributeAmount} ETH</b>\n📊 Progress: <b>${progress}%</b> of goal\n👤 From: <code>${address}</code>\n\nThank you for your support! 🙏`
       })
 
       // Notify creator if goal reached
       if (goalReached) {
         sendNotification({
           address: campaign.creator,
-          message: `🎉 <b>Congratulations! Campaign Goal Reached!</b>\n\n🎯 Campaign: <b>${campaign.title}</b>\n✅ Goal Achieved!\n\nYour campaign has successfully reached its funding goal! You can now withdraw the funds once the deadline has passed. 🚀`,
-          campaignId: String(campaign.campaignId)
+          message: `🎉 <b>Congratulations! Campaign Goal Reached!</b>\n\n🎯 Campaign: <b>${campaign.title}</b>\n✅ Goal Achieved!\n\nYour campaign has successfully reached its funding goal! You can now withdraw the funds once the deadline has passed. 🚀`
         })
       }
 

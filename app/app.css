@@ -143,3 +143,13 @@ input[type='number'] {
     @apply bg-background text-foreground;
   }
 }
+
+/* Flash Card 3D Flip Animation */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}

@@ -2,24 +2,22 @@
 
 import Header from '@/components/Header'
 import { LearnBanner } from '@/components/learn/LearnBanner'
-import { useEffect, useState } from 'react'
-import { Outlet } from 'react-router'
+import { useState } from 'react'
+import { Outlet, useLocation } from 'react-router'
 
 export default function MainLayout() {
-  const [showBanner, setShowBanner] = useState(false)
+  const [showBanner, setShowBanner] = useState(true)
+  const location = useLocation()
 
-  useEffect(() => {
-    const dismissed = localStorage.getItem('learn_banner_dismissed')
-    if (!dismissed) {
-      setShowBanner(true)
-    }
-  }, [])
+  // Hide banner on learn pages
+  const isLearnPage = location.pathname.startsWith('/learn')
+  const shouldShowBanner = showBanner && !isLearnPage
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <div className="flex-1 flex mt-10">
-        <main className={`flex-1 p-5 ${showBanner ? 'pb-24' : ''}`}>
+        <main className={`flex-1 p-5 ${shouldShowBanner ? 'pb-24' : ''}`}>
           <Outlet />
         </main>
       </div>
@@ -27,9 +25,9 @@ export default function MainLayout() {
         © {new Date().getFullYear()} Crowdfunding
       </footer>
 
-      {showBanner && (
+      {shouldShowBanner && (
         <div data-learn-banner>
-          <LearnBanner />
+          <LearnBanner onDismiss={() => setShowBanner(false)} />
         </div>
       )}
     </div>

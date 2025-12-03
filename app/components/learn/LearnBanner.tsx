@@ -1,9 +1,13 @@
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router'
 
-export function LearnBanner() {
+type LearnBannerProps = {
+  onDismiss: () => void
+}
+
+export function LearnBanner({ onDismiss }: LearnBannerProps) {
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 text-white shadow-2xl">
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-linear-to-r from-green-500 via-emerald-500 to-teal-500 text-white shadow-2xl">
       <div className="container mx-auto px-4 py-4">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">
@@ -24,11 +28,7 @@ export function LearnBanner() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="hidden md:flex items-center gap-2 text-sm bg-white/20 backdrop-blur px-4 py-2 rounded-lg">
-              <span>🔥 Streak:</span>
-              <span className="font-bold">0 days</span>
-            </div>
+          <div className="flex items-center gap-16">
             <Link to="/learn">
               <Button
                 size="lg"
@@ -38,11 +38,7 @@ export function LearnBanner() {
               </Button>
             </Link>
             <button
-              onClick={() => {
-                const banner = document.querySelector('[data-learn-banner]')
-                if (banner) (banner as HTMLElement).style.display = 'none'
-                localStorage.setItem('learn_banner_dismissed', 'true')
-              }}
+              onClick={onDismiss}
               className="text-white/80 hover:text-white text-2xl"
               aria-label="Close"
             >

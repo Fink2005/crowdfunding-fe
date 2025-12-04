@@ -334,7 +334,7 @@ function CampaignCard({
                 size="lg"
                 className="w-full bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all"
                 onClick={() => onWithdraw(campaign.campaignId)}
-                disabled={isWithdrawing || claimed}
+                disabled={isWithdrawing || !canWithdraw}
               >
                 {isWithdrawing ? (
                   <>
@@ -359,7 +359,7 @@ function CampaignCard({
               </Button>
             </Link>
 
-            {!canWithdraw && !claimed && (
+            {!canWithdraw && (
               <div className="text-center p-3 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg">
                 <p className="text-sm font-medium text-amber-700 dark:text-amber-300">
                   {!isGoalReached && '⏳ Waiting to reach goal'}

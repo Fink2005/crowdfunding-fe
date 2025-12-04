@@ -41,7 +41,7 @@ const CampaignForm = () => {
   const [showTelegramDialog, setShowTelegramDialog] = useState(false)
   useState<CampaignFormData | null>(null)
   const { isConnected, address } = useAccount()
-  const { data: userProfile } = useGetUserProfile(address)
+  const { data: userProfile } = useGetUserProfile(address?.toLocaleLowerCase())
   const queryClient = useQueryClient()
 
   const form = useForm<CampaignFormData>({
@@ -136,7 +136,7 @@ const CampaignForm = () => {
           title: campaignName,
           description: form.getValues('description'),
           imageUrl: image.url,
-          creator: address as `0x${string}`
+          creator: address?.toLocaleLowerCase() as `0x${string}`
         })
 
         sendNotification({
@@ -175,10 +175,9 @@ const CampaignForm = () => {
 
   const createCampaign = (data: CampaignFormData) => {
     const goalInWei = parseEther(String(data.goal))
-    const durationInSeconds = BigInt(300)
+    const durationInSeconds = BigInt(data.deadline * 24 * 60 * 60)
     const fee = BigInt(creationFee!.toString())
     setIsSubmitting(true)
-    // data.deadline * 24 * 60 *
 
     writeContract({
       address: contractAddress,

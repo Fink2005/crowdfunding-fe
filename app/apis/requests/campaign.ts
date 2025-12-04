@@ -9,9 +9,7 @@ export const campaignRequests = {
     creator: string
   }) => apiClient.post('/campaigns/metadata', data),
   getCampaigns: (page: number = 1, limit: number = 10) =>
-    apiClient.get('/campaigns/metadata', {
-      params: { page, limit }
-    }),
+    apiClient.get('/campaigns/metadata', { page, limit }),
   getCampaignById: (id: string | number) =>
     apiClient.get(`/campaigns/metadata/${id}`)
 }

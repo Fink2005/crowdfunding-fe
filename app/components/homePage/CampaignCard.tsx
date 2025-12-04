@@ -30,7 +30,7 @@ const CampaignCard = () => {
     if (inView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage()
     }
-  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage])
+  }, [inView, hasNextPage, fetchNextPage])
 
   if (isLoading) {
     return (
@@ -44,7 +44,7 @@ const CampaignCard = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-8">Active Campaigns</h1>
+      <h1 className="text-4xl font-bold mb-8">Campaigns</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {campaigns.map((campaign) => (
@@ -52,11 +52,13 @@ const CampaignCard = () => {
         ))}
       </div>
 
-      {hasNextPage && (
-        <div ref={ref} className="flex justify-center items-center py-8 mt-8">
-          {isFetchingNextPage && (
-            <LoaderCircle className="animate-spin" size={32} />
-          )}
+      {/* Infinite scroll trigger */}
+      <div ref={ref} className="h-20" />
+
+      {/* Loading indicator */}
+      {isFetchingNextPage && (
+        <div className="flex justify-center items-center py-4">
+          <LoaderCircle className="animate-spin" size={32} />
         </div>
       )}
 

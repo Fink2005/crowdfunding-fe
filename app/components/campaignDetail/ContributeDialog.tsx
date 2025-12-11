@@ -23,7 +23,7 @@ export function ContributeDialog({
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
-  campaignTitle: string
+  campaignTitle: string | undefined
   contributeAmount: string
   setContributeAmount: (amount: string) => void
   contributionFee: bigint | undefined

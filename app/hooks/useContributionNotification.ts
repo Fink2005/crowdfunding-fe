@@ -13,7 +13,7 @@ type ContractCampaign = readonly [
 
 type UseContributionNotificationProps = {
   txSuccess: boolean
-  campaign: CampaignMetadata | null
+  campaign: CampaignMetadata['data'] | undefined
   address: `0x${string}` | undefined
   contributeAmount: string
   userHasTelegram: boolean

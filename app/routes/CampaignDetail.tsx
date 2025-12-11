@@ -1,5 +1,9 @@
+import { useGetCampaignById } from '@/apis/queries/campaign'
+import {
+  useGetCampaignContract,
+  useGetContributionFee
+} from '@/apis/queries/contract'
 import { useGetUserProfile } from '@/apis/queries/user'
-import { campaignRequests } from '@/apis/requests/campaign'
 import { CampaignImage } from '@/components/campaignDetail/CampaignImage'
 import { CampaignInfo } from '@/components/campaignDetail/CampaignInfo'
 import { ContributeDialog } from '@/components/campaignDetail/ContributeDialog'
@@ -16,47 +20,24 @@ import { toast } from 'sonner'
 import { parseEther } from 'viem'
 import {
   useAccount,
-  useReadContract,
   useWaitForTransactionReceipt,
   useWriteContract
 } from 'wagmi'
 
-type ContractCampaign = readonly [
-  creator: `0x${string}`,
-  goal: bigint,
-  deadline: bigint,
-  totalFunded: bigint,
-  claimed: boolean
-]
-
 export default function CampaignDetail() {
   const { id } = useParams<{ id: string }>()
-  const [campaign, setCampaign] = useState<CampaignMetadata | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
   const [showContributeDialog, setShowContributeDialog] = useState(false)
   const [contributeAmount, setContributeAmount] = useState('')
   const [isContributing, setIsContributing] = useState(false)
   const [showTelegramDialog, setShowTelegramDialog] = useState(false)
+  const [campaignData, setCampaignData] = useState<
+    CampaignMetadata['data'] | undefined
+  >()
 
   const { isConnected, address } = useAccount()
   const { data: userProfile } = useGetUserProfile(address)
 
-  const { data: contractCampaign, refetch: refetchCampaign } = useReadContract({
-    address: contractAddress,
-    abi: contractAbi,
-    functionName: 'getCampaign',
-    args: campaign?.campaignId ? [BigInt(campaign.campaignId)] : undefined,
-    query: { enabled: !!campaign?.campaignId }
-  }) as {
-    data: ContractCampaign | undefined
-    refetch: () => Promise<{ data: ContractCampaign | undefined }>
-  }
-
-  const { data: contributionFee } = useReadContract({
-    address: contractAddress,
-    abi: contractAbi,
-    functionName: 'contributionFee'
-  }) as { data: bigint | undefined }
+  const { data: contributionFee } = useGetContributionFee()
 
   const { data: txHash, writeContract, error: writeError } = useWriteContract()
 
@@ -64,22 +45,20 @@ export default function CampaignDetail() {
     hash: txHash
   })
 
+  const { data: campaign, isSuccess, isLoading } = useGetCampaignById(id || '')
+
   useEffect(() => {
-    if (!id) return
-
-    const fetchCampaign = async () => {
-      setIsLoading(true)
-      const response = await campaignRequests.getCampaignById(id)
-      if (response.data.success) setCampaign(response.data.data)
-      setIsLoading(false)
+    if (campaign) {
+      setCampaignData(campaign.data)
     }
+  }, [isSuccess])
 
-    fetchCampaign()
-  }, [id])
+  const { data: contractCampaign, refetch: refetchCampaign } =
+    useGetCampaignContract(campaignData?.campaignId || -1)
 
   useContributionNotification({
     txSuccess,
-    campaign,
+    campaign: campaignData,
     address,
     contributeAmount,
     userHasTelegram: !!userProfile?.chatId,
@@ -108,7 +87,7 @@ export default function CampaignDetail() {
     if (!contributeAmount || parseFloat(contributeAmount) <= 0)
       return toast.error('Please enter a valid amount')
 
-    if (!contributionFee || !campaign?.campaignId) return
+    if (!contributionFee || !campaignData?.campaignId) return
 
     const amountInWei = parseEther(contributeAmount)
     const fee = BigInt(contributionFee.toString())
@@ -118,7 +97,7 @@ export default function CampaignDetail() {
       address: contractAddress,
       abi: contractAbi,
       functionName: 'contribute',
-      args: [BigInt(campaign.campaignId)],
+      args: [BigInt(campaignData.campaignId)],
       value: amountInWei + fee
     })
 
@@ -148,16 +127,16 @@ export default function CampaignDetail() {
       </Link>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <CampaignImage campaign={campaign} />
+        <CampaignImage campaign={campaignData} />
 
         <div className="space-y-6">
-          <h1 className="text-4xl font-bold mb-4">{campaign.title}</h1>
+          <h1 className="text-4xl font-bold mb-4">{campaignData?.title}</h1>
 
           {contractCampaign && (
             <FundingProgress contractCampaign={contractCampaign} />
           )}
 
-          <CampaignInfo campaign={campaign} />
+          <CampaignInfo campaign={campaignData} />
 
           {/* Action Buttons */}
           <div className="space-y-3">
@@ -187,13 +166,11 @@ export default function CampaignDetail() {
         </div>
       </div>
 
-      {/* Additional Info Section */}
-      {/* Additional Info Section */}
       <div className="mt-12 border-t pt-8">
         <h2 className="text-2xl font-bold mb-6">About This Campaign</h2>
         <div className="prose prose-neutral dark:prose-invert max-w-none">
           <p className="text-muted-foreground leading-relaxed">
-            {campaign.description}
+            {campaignData?.description}
           </p>
         </div>
       </div>
@@ -201,7 +178,7 @@ export default function CampaignDetail() {
       <ContributeDialog
         open={showContributeDialog}
         onOpenChange={setShowContributeDialog}
-        campaignTitle={campaign.title}
+        campaignTitle={campaignData?.title}
         contributeAmount={contributeAmount}
         setContributeAmount={setContributeAmount}
         contributionFee={contributionFee}

@@ -27,7 +27,7 @@ export function FundingProgress({
   const status = getStatus()
 
   return (
-    <div className="border rounded-lg p-6 space-y-4 bg-gradient-to-br from-primary/5 to-primary/10">
+    <div className="border rounded-lg p-6 space-y-4 bg-linear-to-br from-primary/5 to-primary/10">
       <h3 className="text-xl font-semibold mb-4">Funding Progress</h3>
 
       <div className="space-y-4">

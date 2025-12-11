@@ -1,6 +1,6 @@
 import { campaignRequests } from '@/apis/requests/campaign'
-import type { CampaignPagination } from '@/types/campaign'
-import { useInfiniteQuery } from '@tanstack/react-query'
+import type { CampaignMetadata, CampaignPagination } from '@/types/campaign'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 
 export const useGetCampaignMetadata = (initialPage = 1) => {
   return useInfiniteQuery<CampaignPagination, Error>({
@@ -21,13 +21,32 @@ export const useGetCampaignMetadata = (initialPage = 1) => {
     },
     initialPageParam: initialPage,
     getNextPageParam: (lastPage: CampaignPagination) => {
-      const currentPage = lastPage.page
-      const totalPages = lastPage.pageTotal
+      const currentPage = lastPage.currentPage
+      const totalPages = lastPage.totalPages
 
       if (currentPage < totalPages) {
         return currentPage + 1
       }
       return undefined
     }
+  })
+}
+
+export const useGetCampaignById = (id: string | number) => {
+  return useQuery<CampaignMetadata, Error>({
+    queryKey: ['campaign-detail', id],
+    queryFn: async (): Promise<CampaignMetadata> => {
+      const { data } = await campaignRequests.getCampaignById(id)
+
+      if (data instanceof Error) {
+        throw data
+      }
+
+      if (!data) {
+        throw new Error('Response is null')
+      }
+      return data
+    },
+    enabled: !!id
   })
 }

@@ -18,7 +18,7 @@ export function LearnBanner({ onDismiss }: LearnBannerProps) {
             <div className="flex-1 min-w-0">
               <h3 className="text-base sm:text-xl font-bold flex flex-wrap items-center gap-2 mb-1">
                 <span className="whitespace-nowrap">
-                  Learn English - Earn ETH!
+                  Learn Vocabulary - Earn ETH!
                 </span>
                 <span className="text-xs bg-yellow-400 text-green-900 px-2 py-0.5 rounded-full font-bold">
                   NEW
@@ -37,7 +37,7 @@ export function LearnBanner({ onDismiss }: LearnBannerProps) {
                   size="sm"
                   className="w-full bg-yellow-400 hover:bg-yellow-500 text-green-900 font-bold shadow-lg"
                 >
-                  🚀 Start Now
+                  Start Now
                 </Button>
               </Link>
             </div>
@@ -50,7 +50,7 @@ export function LearnBanner({ onDismiss }: LearnBannerProps) {
                 size="lg"
                 className="bg-yellow-400 hover:bg-yellow-500 text-green-900 font-bold shadow-lg hover:shadow-xl transition-all whitespace-nowrap"
               >
-                🚀 Start Now
+                Start Now
               </Button>
             </Link>
             <button

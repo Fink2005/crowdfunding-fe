@@ -1,10 +1,9 @@
 import type { CampaignMetadata } from '@/types/campaign'
 
-export function CampaignInfo({
-  campaign
-}: {
-  campaign: CampaignMetadata | null
-}) {
+type Props = {
+  campaign: CampaignMetadata['data'] | undefined
+}
+export function CampaignInfo({ campaign }: Props) {
   if (!campaign) return null
 
   return (

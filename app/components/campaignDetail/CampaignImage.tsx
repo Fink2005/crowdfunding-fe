@@ -1,13 +1,11 @@
 import type { CampaignMetadata } from '@/types/campaign'
-
-export function CampaignImage({
-  campaign
-}: {
-  campaign: CampaignMetadata | null
-}) {
+type Props = {
+  campaign: CampaignMetadata['data'] | undefined
+}
+export function CampaignImage({ campaign }: Props) {
   return (
     <div className="space-y-4">
-      <div className="relative rounded-lg overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 aspect-video">
+      <div className="relative rounded-lg overflow-hidden bg-linear-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 aspect-video">
         {campaign?.imageUrl ? (
           <img
             src={campaign.imageUrl}

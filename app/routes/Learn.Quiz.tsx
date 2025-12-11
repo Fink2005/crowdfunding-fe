@@ -40,19 +40,16 @@ export default function Learn() {
 
   const { mutate: submitQuiz, isPending: isSubmitting } = useSubmitQuiz()
 
-  // Contract interaction
   const { data: txHash, writeContract } = useWriteContract()
   const { isSuccess: txSuccess, data: receipt } = useWaitForTransactionReceipt({
     hash: txHash
   })
 
-  // Telegram notification
   const { mutate: sendNotification } = useSendTelegramNotification()
 
   const questions = quizData?.data || []
   const currentQ = questions[currentQuestion]
 
-  // Handle successful transaction
   useEffect(() => {
     if (txSuccess && receipt && address) {
       const rewardAmount = '0.02'
@@ -134,7 +131,7 @@ export default function Learn() {
 
     toast.info('Processing your reward...')
 
-    const rewardAmount = parseEther('0.02') // 0.02 ETH reward
+    const rewardAmount = parseEther('0.02')
 
     writeContract({
       address: contractAddress,
@@ -165,10 +162,9 @@ export default function Learn() {
             <span className="font-medium">Back to Learn</span>
           </Link>
 
-          {/* Header */}
           <div className="text-center mb-12">
-            <h1 className="text-5xl font-bold mb-4 bg-linear-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
-              Learn English - Earn ETH
+            <h1 className="text-5xl font-bold mb-4 bg-linear-to-r from-green-600 to-teal-600 bg-clip-text text-transparent pe-1">
+              Learn Vocabulary - Earn ETH
             </h1>
             <p className="text-xl text-muted-foreground">
               Answer 10 quiz questions correctly → Get{' '}

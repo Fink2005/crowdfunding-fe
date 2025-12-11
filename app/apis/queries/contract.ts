@@ -25,3 +25,10 @@ export const useGetContributionFee = () =>
     abi: contractAbi,
     functionName: 'contributionFee'
   }) as { data: bigint | undefined }
+
+export const useGetCreationFee = () =>
+  useReadContract({
+    address: contractAddress,
+    abi: contractAbi,
+    functionName: 'creationFee'
+  }) as { data: bigint | undefined }

@@ -5,5 +5,5 @@ export type UserProfile = {
   address: string
   chatId?: string
   createdAt: string
-  campaigns: CampaignMetadata[]
+  campaigns: CampaignMetadata['data'][]
 }

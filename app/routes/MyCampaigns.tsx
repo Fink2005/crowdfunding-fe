@@ -1,3 +1,4 @@
+import { useGetCampaignContract } from '@/apis/queries/contract'
 import { useGetUserProfile } from '@/apis/queries/user'
 import { CampaignCardSkeleton } from '@/components/campaignCard/CampaignCardSkeleton'
 import { Button } from '@/components/ui/button'
@@ -10,7 +11,6 @@ import { toast } from 'sonner'
 import { formatEther } from 'viem'
 import {
   useAccount,
-  useReadContract,
   useWaitForTransactionReceipt,
   useWriteContract
 } from 'wagmi'
@@ -168,23 +168,16 @@ function CampaignCard({
   onWithdraw,
   isWithdrawing
 }: {
-  campaign: CampaignMetadata
+  campaign: CampaignMetadata['data']
   onWithdraw: (id: number) => void
   isWithdrawing: boolean
 }) {
-  // Get campaign data from smart contract
-  const { data: contractCampaign } = useReadContract({
-    address: contractAddress,
-    abi: contractAbi,
-    functionName: 'getCampaign',
-    args: [BigInt(campaign.campaignId)]
-  }) as { data: ContractCampaign | undefined }
-
-  if (!contractCampaign) {
+  const { data } = useGetCampaignContract(campaign.campaignId)
+  if (!data) {
     return <CampaignCardSkeleton />
   }
 
-  const [creator, goal, deadline, totalFunded, claimed] = contractCampaign
+  const [creator, goal, deadline, totalFunded, claimed] = data
   const isDeadlinePassed = Date.now() > Number(deadline) * 1000
   const isGoalReached = totalFunded >= goal
   const canWithdraw = !claimed && isGoalReached && isDeadlinePassed

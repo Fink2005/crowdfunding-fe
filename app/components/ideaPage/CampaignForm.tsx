@@ -1,3 +1,4 @@
+import { useGetCreationFee } from '@/apis/queries/contract'
 import { useMediaQuery } from '@/apis/queries/media'
 import { useSendTelegramNotification } from '@/apis/queries/telegram'
 import { useGetUserProfile } from '@/apis/queries/user'
@@ -26,7 +27,6 @@ import { toast } from 'sonner'
 import { decodeEventLog, parseEther } from 'viem'
 import {
   useAccount,
-  useReadContract,
   useWaitForTransactionReceipt,
   useWriteContract
 } from 'wagmi'
@@ -97,12 +97,7 @@ const CampaignForm = () => {
     hash: txHash
   })
 
-  const { data: creationFee } = useReadContract({
-    address: contractAddress,
-    abi: contractAbi,
-    functionName: 'creationFee',
-    query: { enabled: isConnected }
-  })
+  const { data: creationFee } = useGetCreationFee()
 
   const { mutate: sendNotification } = useSendTelegramNotification()
 
@@ -113,15 +108,11 @@ const CampaignForm = () => {
       try {
         const log = receipt.logs[0]
 
-        console.log(receipt.logs)
-
         const event = decodeEventLog({
           abi: contractAbi,
           data: log.data,
           topics: log.topics
         }) as { args?: Record<string, any> }
-
-        console.log(event)
 
         if (!event.args) {
           throw new Error('Invalid event args')

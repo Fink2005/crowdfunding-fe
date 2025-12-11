@@ -1,5 +1,6 @@
 import { useGetCampaignContract } from '@/apis/queries/contract'
 import { useGetUserProfile } from '@/apis/queries/user'
+import { telegramRequests } from '@/apis/requests/telegram'
 import { CampaignCardSkeleton } from '@/components/campaignCard/CampaignCardSkeleton'
 import { Button } from '@/components/ui/button'
 import { contractAbi, contractAddress } from '@/contract/ContractClient'
@@ -112,12 +113,10 @@ export default function MyCampaigns() {
               <Button
                 onClick={async () => {
                   if (!address) return
-                  const { telegramRequests } =
-                    await import('@/apis/requests/telegram')
                   const botUrl = await telegramRequests.connectBot(address)
                   window.open(botUrl, '_blank')
                 }}
-                className="bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                className="dark:text-white text-black bg-amber-300"
               >
                 🔔 Connect Telegram Now
               </Button>

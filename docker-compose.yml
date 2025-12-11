@@ -6,7 +6,7 @@ services:
     container_name: crowdfunding-fe
     ports:
       - '8386:8386'
-    environment:
+    env_file:
       - .env
     restart: unless-stopped
     networks:

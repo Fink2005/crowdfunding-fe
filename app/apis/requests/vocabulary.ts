@@ -33,6 +33,33 @@ export type VocabularyListResponse = {
   }>
 }
 
+export type AllVocabularyResponse = {
+  success: boolean
+  data: Array<{
+    _id: string
+    word: string
+    meaning: string
+    sourceLang: string
+    targetLang: string
+    example: string
+    __v: number
+  }>
+}
+
+export type UpdateVocabularyInput = {
+  id: string
+  word: string
+  meaning: string
+  sourceLang: string
+  targetLang: string
+  example: string
+}
+
+export type DeleteVocabularyResponse = {
+  success: boolean
+  message: string
+}
+
 export type QuizQuestion = {
   id: string
   word: string
@@ -95,6 +122,27 @@ export const vocabularyRequests = {
 
   submitQuiz: async (input: SubmitQuizInput): Promise<SubmitQuizResponse> => {
     const response = await apiClient.post('/vocabulary/quiz/submit', input)
+    return response.data
+  },
+
+  // GET /vocabulary - Get all vocabulary
+  getAllVocabulary: async (): Promise<AllVocabularyResponse> => {
+    const response = await apiClient.get('/vocabulary')
+    return response.data
+  },
+
+  // PUT /vocabulary/:id - Update vocabulary
+  updateVocabulary: async (
+    input: UpdateVocabularyInput
+  ): Promise<VocabularyResponse> => {
+    const { id, ...data } = input
+    const response = await apiClient.put(`/vocabulary/${id}`, data)
+    return response.data
+  },
+
+  // DELETE /vocabulary/:id - Delete vocabulary
+  deleteVocabulary: async (id: string): Promise<DeleteVocabularyResponse> => {
+    const response = await apiClient.delete(`/vocabulary/${id}`)
     return response.data
   }
 }

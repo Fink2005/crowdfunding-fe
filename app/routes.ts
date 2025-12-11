@@ -14,6 +14,6 @@ export default [
     route('learn', './routes/Learn.tsx'),
     route('learn/study', './routes/Learn.Study.tsx'),
     route('learn/quiz', './routes/Learn.Quiz.tsx'),
-    route('learn/add', './routes/Learn.Add.tsx')
+    route('learn/manage', './routes/Learn.Manage.tsx')
   ])
 ] satisfies RouteConfig

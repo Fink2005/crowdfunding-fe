@@ -1,13 +1,16 @@
+import { VocabularyDialog } from '@/components/learn/VocabularyDialog'
 import { Button } from '@/components/ui/button'
+import { useState } from 'react'
 import { Link } from 'react-router'
 
 export default function Learn() {
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
+          <h1 className="text-5xl font-bold mb-4 bg-linear-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
             Learn & Earn ETH
           </h1>
           <p className="text-xl text-muted-foreground">
@@ -18,9 +21,9 @@ export default function Learn() {
         </div>
 
         {/* Action Cards */}
-        <div className="grid md:grid-cols-3 gap-6 mb-12">
+        <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
           {/* Study Card */}
-          <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 border-2 border-blue-200 dark:border-blue-800 rounded-2xl p-8 hover:shadow-xl transition-shadow">
+          <div className="bg-linear-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 border-2 border-blue-200 dark:border-blue-800 rounded-2xl p-8 hover:shadow-xl transition-shadow">
             <div className="text-6xl mb-4">📚</div>
             <h2 className="text-2xl font-bold mb-3">Study Vocabulary</h2>
             <p className="text-muted-foreground mb-6">
@@ -29,7 +32,7 @@ export default function Learn() {
             <Link to="/learn/study">
               <Button
                 size="lg"
-                className="w-full h-12 text-base bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+                className="w-full h-12 text-base bg-linear-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
               >
                 Start Learning →
               </Button>
@@ -37,7 +40,7 @@ export default function Learn() {
           </div>
 
           {/* Quiz Card */}
-          <div className="bg-gradient-to-br from-green-50 to-teal-50 dark:from-green-950 dark:to-teal-950 border-2 border-green-200 dark:border-green-800 rounded-2xl p-8 hover:shadow-xl transition-shadow">
+          <div className="bg-linear-to-br from-green-50 to-teal-50 dark:from-green-950 dark:to-teal-950 border-2 border-green-200 dark:border-green-800 rounded-2xl p-8 hover:shadow-xl transition-shadow">
             <div className="text-6xl mb-4">🎯</div>
             <h2 className="text-2xl font-bold mb-3">Take Quiz</h2>
             <p className="text-muted-foreground mb-6">
@@ -46,26 +49,26 @@ export default function Learn() {
             <Link to="/learn/quiz">
               <Button
                 size="lg"
-                className="w-full h-12 text-base bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600"
+                className="w-full h-12 text-base bg-linear-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600"
               >
                 Take Quiz →
               </Button>
             </Link>
           </div>
 
-          {/* Add Vocabulary Card */}
-          <div className="bg-gradient-to-br from-orange-50 to-yellow-50 dark:from-orange-950 dark:to-yellow-950 border-2 border-orange-200 dark:border-orange-800 rounded-2xl p-8 hover:shadow-xl transition-shadow">
-            <div className="text-6xl mb-4">✨</div>
-            <h2 className="text-2xl font-bold mb-3">Add Vocabulary</h2>
+          {/* Manage Vocabulary Card */}
+          <div className="bg-linear-to-br from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950 border-2 border-purple-200 dark:border-purple-800 rounded-2xl p-8 hover:shadow-xl transition-shadow">
+            <div className="text-6xl mb-4">⚙️</div>
+            <h2 className="text-2xl font-bold mb-3">Manage</h2>
             <p className="text-muted-foreground mb-6">
-              Contribute new words to the learning system.
+              View, edit, and delete all vocabulary entries.
             </p>
-            <Link to="/learn/add">
+            <Link to="/learn/manage">
               <Button
                 size="lg"
-                className="w-full h-12 text-base bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600"
+                className="w-full h-12 text-base bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
               >
-                Add Words →
+                Manage →
               </Button>
             </Link>
           </div>
@@ -133,6 +136,13 @@ export default function Learn() {
             </div>
           </div>
         </div>
+
+        {/* Add Vocabulary Dialog */}
+        <VocabularyDialog
+          open={isAddDialogOpen}
+          onOpenChange={setIsAddDialogOpen}
+          mode="create"
+        />
       </div>
     </div>
   )

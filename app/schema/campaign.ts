@@ -16,15 +16,18 @@ export const campaignSchema = z.object({
     .min(1, 'Deadline must be at least 1 day')
     .max(60, 'Deadline cannot exceed 60 days'),
   image: z
-    .instanceof(FileList)
-    .refine((files) => files?.length === 1, 'Image is required')
+    .custom<FileList>(
+      (files) => typeof FileList !== 'undefined' && files instanceof FileList,
+      { message: 'Image is required' }
+    )
+    .refine((files) => files.length === 1, 'Image is required')
     .refine(
-      (files) => files?.[0]?.size <= 5000000,
+      (files) => files[0].size <= 5_000_000,
       'Image size must be less than 5MB'
     )
     .refine(
       (files) =>
-        ['image/jpeg', 'image/jpg', 'image/png'].includes(files?.[0]?.type),
+        ['image/jpeg', 'image/jpg', 'image/png'].includes(files[0].type),
       'Only .jpg, .jpeg, and .png formats are supported'
     )
 })

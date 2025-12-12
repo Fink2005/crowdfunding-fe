@@ -2,11 +2,12 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME             = "fundhive-fe"
-        HARBOR_REGISTRY        = "registry.fink.io.vn"
-        HARBOR_PROJECT_FE      = "crowdfunding"
-        HARBOR_PROJECT_AGENT   = "jenkins-agents"
-        IMAGE_TAG              = "latest"
+        IMAGE_NAME           = "fundhive-fe"
+        IMAGE_TAG            = "latest"
+
+        HARBOR_REGISTRY      = "registry.fink.io.vn"
+        HARBOR_PROJECT_FE    = "crowdfunding"
+        HARBOR_PROJECT_AGENT = "jenkins-agents"
     }
 
     options {
@@ -27,12 +28,15 @@ pipeline {
         }
 
         // ------------------------------------------------------------
-        stage('Build App (Vite)') {
+        stage('Build App (Vite - build in Jenkins)') {
             agent none
             steps {
                 ansiColor('xterm') {
                     withCredentials([
-                        string(credentialsId: 'vite-walletconnect-project-id', variable: 'VITE_WALLETCONNECT_PROJECT_ID'),
+                        string(
+                            credentialsId: 'vite-walletconnect-project-id',
+                            variable: 'VITE_WALLETCONNECT_PROJECT_ID'
+                        )
                     ]) {
                         script {
                             docker.withRegistry(
@@ -48,7 +52,7 @@ pipeline {
                                         set -eux
                                         export HUSKY=0
 
-                                        # 🔑 Inject build-time env
+                                        # 🔑 Build-time env cho Vite
                                         export VITE_WALLETCONNECT_PROJECT_ID="$VITE_WALLETCONNECT_PROJECT_ID"
 
                                         echo "📦 Installing dependencies..."
@@ -57,11 +61,14 @@ pipeline {
                                         echo "⚙️ Building Vite app..."
                                         pnpm build
 
-                                        echo "📁 Checking build output..."
-                                        test -d build
-
+                                        echo "📁 Preparing Docker build context..."
+                                        rm -rf "$WORKSPACE/build_output"
                                         mkdir -p "$WORKSPACE/build_output"
-                                        cp -r build Dockerfile "$WORKSPACE/build_output/"
+
+                                        # 👉 Docker runtime cần các file này
+                                        cp -r build "$WORKSPACE/build_output/"
+                                        cp package.json pnpm-lock.yaml "$WORKSPACE/build_output/"
+                                        cp Dockerfile "$WORKSPACE/build_output/"
                                     '''
                                 }
                             }
@@ -72,7 +79,7 @@ pipeline {
         }
 
         // ------------------------------------------------------------
-        stage('Build & Push Image') {
+        stage('Build & Push Docker Image') {
             agent none
             steps {
                 ansiColor('xterm') {

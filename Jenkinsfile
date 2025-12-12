@@ -41,7 +41,7 @@ pipeline {
                         script {
                             docker.withRegistry(
                                 "https://${HARBOR_REGISTRY}",
-                                "harbor-crowdfunding-agent"
+                                "harbor-jenkins-agent"
                             ) {
                                 docker.image(
                                     "${HARBOR_PROJECT_AGENT}/jenkins-agent-node-pnpm:v24.9.0-pnpm10.18.0"
@@ -85,7 +85,7 @@ pipeline {
                 ansiColor('xterm') {
                     withCredentials([
                         usernamePassword(
-                            credentialsId: 'harbor-crowdfunding-agent',
+                            credentialsId: 'harbor-jenkins-agent',
                             usernameVariable: 'AGENT_USER',
                             passwordVariable: 'AGENT_PASS'
                         ),
@@ -103,7 +103,7 @@ pipeline {
 
                             docker.withRegistry(
                                 "https://${HARBOR_REGISTRY}",
-                                "harbor-crowdfunding-agent"
+                                "harbor-jenkins-agent"
                             ) {
                                 docker.image(
                                     "${HARBOR_PROJECT_AGENT}/jenkins-agent-docker:v27.0.3"

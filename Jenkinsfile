@@ -2,11 +2,11 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME            = "fundhive-fe"
-        HARBOR_REGISTRY       = "registry.fink.io.vn"
-        HARBOR_PROJECT_FE     = "crowdfunding"
-        HARBOR_PROJECT_AGENT = "jenkins-agents"
-        IMAGE_TAG             = "latest"
+        IMAGE_NAME             = "fundhive-fe"
+        HARBOR_REGISTRY        = "registry.fink.io.vn"
+        HARBOR_PROJECT_FE      = "crowdfunding"
+        HARBOR_PROJECT_AGENT   = "jenkins-agents"
+        IMAGE_TAG              = "latest"
     }
 
     options {
@@ -31,32 +31,39 @@ pipeline {
             agent none
             steps {
                 ansiColor('xterm') {
-                    script {
-                        docker.withRegistry(
-                            "https://${HARBOR_REGISTRY}",
-                            "harbor-jenkins-agents"
-                        ) {
-                            docker.image(
-                                "${HARBOR_PROJECT_AGENT}/jenkins-agent-node-pnpm:v24.9.0-pnpm10.18.0"
-                            ).inside(
-                                "-v /home/fink/Workspace/docker/jenkins/cache/pnpm:/root/.pnpm-store"
+                    withCredentials([
+                        string(credentialsId: 'vite-walletconnect-project-id', variable: 'VITE_WALLETCONNECT_PROJECT_ID'),
+                    ]) {
+                        script {
+                            docker.withRegistry(
+                                "https://${HARBOR_REGISTRY}",
+                                "harbor-jenkins-agents"
                             ) {
-                                sh '''
-                                    set -eux
-                                    export HUSKY=0
+                                docker.image(
+                                    "${HARBOR_PROJECT_AGENT}/jenkins-agent-node-pnpm:v24.9.0-pnpm10.18.0"
+                                ).inside(
+                                    "-v /home/fink/Workspace/docker/jenkins/cache/pnpm:/root/.pnpm-store"
+                                ) {
+                                    sh '''
+                                        set -eux
+                                        export HUSKY=0
 
-                                    echo "📦 Installing dependencies..."
-                                    pnpm install --frozen-lockfile
+                                        # 🔑 Inject build-time env
+                                        export VITE_WALLETCONNECT_PROJECT_ID="$VITE_WALLETCONNECT_PROJECT_ID"
 
-                                    echo "⚙️ Building Vite app..."
-                                    pnpm build
+                                        echo "📦 Installing dependencies..."
+                                        pnpm install --frozen-lockfile
 
-                                    echo "📁 Checking build output..."
-                                    test -d build
+                                        echo "⚙️ Building Vite app..."
+                                        pnpm build
 
-                                    mkdir -p "$WORKSPACE/build_output"
-                                    cp -r build Dockerfile "$WORKSPACE/build_output/"
-                                '''
+                                        echo "📁 Checking build output..."
+                                        test -d build
+
+                                        mkdir -p "$WORKSPACE/build_output"
+                                        cp -r build Dockerfile "$WORKSPACE/build_output/"
+                                    '''
+                                }
                             }
                         }
                     }

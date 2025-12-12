@@ -53,6 +53,7 @@ pipeline {
                                     # Create .env.production.local which takes precedence
                                     echo "VITE_WALLETCONNECT_PROJECT_ID=$VITE_WALLETCONNECT_PROJECT_ID" > .env.production.local
                                     echo "VITE_API_BASE_URL=https://api.fundhive.pro.vn" >> .env.production.local
+                                    echo "VITE_CONTRACT_ADDRESS=0xF0FF7e67C2EBA417c7E0F0f8e1F8E7EA55c0aa73" >> .env.production.local
                                     
                                     echo "📋 Environment file created:"
                                     cat .env.production.local

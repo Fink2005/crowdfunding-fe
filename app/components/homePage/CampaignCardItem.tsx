@@ -20,26 +20,34 @@ function CampaignCardItem({ campaign }: Props) {
     errorMessage: error?.message
   })
 
+  // Always show campaign card with API data
+  // Contract data will be loaded progressively
+  const hasContractData = !!data && !error
+  
   if (isLoading) {
     console.log(`⏳ Campaign ${campaign.campaignId}: Still loading from contract...`)
-    return <CampaignCardItemSkeleton />
   }
 
   if (error) {
     console.error(`❌ Campaign ${campaign.campaignId}: Contract error:`, error)
-    return <CampaignCardItemSkeleton />
   }
 
   if (!data) {
-    console.warn(`⚠️ Campaign ${campaign.campaignId}: No data from contract`)
-    return <CampaignCardItemSkeleton />
+    console.warn(`⚠️ Campaign ${campaign.campaignId}: No contract data yet, showing API data only`)
+  } else {
+    console.log(`✅ Campaign ${campaign.campaignId}: Rendering with contract data!`)
   }
-  
-  console.log(`✅ Campaign ${campaign.campaignId}: Rendering with data!`)
 
-  const [creator, goal, deadline, totalFunded, claimed] = data
-  const progress = Math.round((Number(totalFunded) / Number(goal)) * 100)
-  const isDeadlinePassed = Date.now() > Number(deadline) * 1000
+  // Use contract data if available, otherwise show placeholder values
+  const [creator, goal, deadline, totalFunded, claimed] = data || [
+    campaign.creator as `0x${string}`,
+    BigInt(0),
+    BigInt(0),
+    BigInt(0),
+    false
+  ]
+  const progress = goal > 0 ? Math.round((Number(totalFunded) / Number(goal)) * 100) : 0
+  const isDeadlinePassed = deadline > 0 ? Date.now() > Number(deadline) * 1000 : false
 
   return (
     <div className="border rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
@@ -66,21 +74,29 @@ function CampaignCardItem({ campaign }: Props) {
         </p>
 
         <div className="mb-4">
-          <div className="flex justify-between text-sm mb-2">
-            <span className="text-muted-foreground">
-              {formatEther(totalFunded)} ETH raised
-            </span>
-            <span className="font-semibold">{progress}%</span>
-          </div>
-          <div className="w-full bg-gray-200 dark:bg-gray-800 rounded-full h-2">
-            <div
-              className="bg-linear-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
-              style={{ width: `${Math.min(progress, 100)}%` }}
-            />
-          </div>
-          <div className="text-xs text-muted-foreground mt-1">
-            Goal: {formatEther(goal)} ETH
-          </div>
+          {hasContractData ? (
+            <>
+              <div className="flex justify-between text-sm mb-2">
+                <span className="text-muted-foreground">
+                  {formatEther(totalFunded)} ETH raised
+                </span>
+                <span className="font-semibold">{progress}%</span>
+              </div>
+              <div className="w-full bg-gray-200 dark:bg-gray-800 rounded-full h-2">
+                <div
+                  className="bg-linear-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
+                  style={{ width: `${Math.min(progress, 100)}%` }}
+                />
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                Goal: {formatEther(goal)} ETH
+              </div>
+            </>
+          ) : (
+            <div className="text-sm text-muted-foreground italic">
+              {isLoading ? '⏳ Loading funding data...' : '📊 Contract data unavailable'}
+            </div>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -96,18 +112,22 @@ function CampaignCardItem({ campaign }: Props) {
             <span className="text-muted-foreground">Status:</span>
             <span
               className={`text-xs font-semibold ${
-                claimed
-                  ? 'text-green-600 dark:text-green-400'
-                  : isDeadlinePassed
-                    ? 'text-red-600 dark:text-red-400'
-                    : 'text-blue-600 dark:text-blue-400'
+                !hasContractData
+                  ? 'text-gray-600 dark:text-gray-400'
+                  : claimed
+                    ? 'text-green-600 dark:text-green-400'
+                    : isDeadlinePassed
+                      ? 'text-red-600 dark:text-red-400'
+                      : 'text-blue-600 dark:text-blue-400'
               }`}
             >
-              {claimed
-                ? '✅ Claimed'
-                : isDeadlinePassed
-                  ? '⏰ Ended'
-                  : '🔥 Active'}
+              {!hasContractData
+                ? '📝 Pending'
+                : claimed
+                  ? '✅ Claimed'
+                  : isDeadlinePassed
+                    ? '⏰ Ended'
+                    : '🔥 Active'}
             </span>
           </div>
         </div>

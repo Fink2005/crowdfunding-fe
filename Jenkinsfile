@@ -2,12 +2,10 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME           = "crowdfunding-fe"
-        IMAGE_TAG            = "latest"
-
-        HARBOR_REGISTRY      = "registry.fink.io.vn"
-        HARBOR_PROJECT_FE    = "crowdfunding"
-        HARBOR_PROJECT_AGENT = "jenkins-agents"
+        DOCKERHUB_USERNAME = "phantansy"        
+        IMAGE_NAME         = "crowdfunding-fe"
+        IMAGE_TAG          = "latest"
+        IMAGE_FULL         = "${DOCKERHUB_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG}"
     }
 
     options {
@@ -39,38 +37,31 @@ pipeline {
                         )
                     ]) {
                         script {
-                            docker.withRegistry(
-                                "https://${HARBOR_REGISTRY}",
-                                "harbor-jenkins-agent"
+                            docker.image(
+                                "node:20-alpine"
+                            ).inside(
+                                "-v /home/fink/Workspace/docker/jenkins/cache/pnpm:/root/.pnpm-store"
                             ) {
-                                docker.image(
-                                    "${HARBOR_PROJECT_AGENT}/jenkins-agent-node-pnpm:v24.9.0-pnpm10.18.0"
-                                ).inside(
-                                    "-v /home/fink/Workspace/docker/jenkins/cache/pnpm:/root/.pnpm-store"
-                                ) {
-                                    sh '''
-                                        set -eux
-                                        export HUSKY=0
+                                sh '''
+                                    set -eux
+                                    export HUSKY=0
+                                    npm install -g pnpm
 
-                                        # 🔑 Build-time env cho Vite
-                                        export VITE_WALLETCONNECT_PROJECT_ID="$VITE_WALLETCONNECT_PROJECT_ID"
+                                    export VITE_WALLETCONNECT_PROJECT_ID="$VITE_WALLETCONNECT_PROJECT_ID"
 
-                                        echo "📦 Installing dependencies..."
-                                        pnpm install --frozen-lockfile
+                                    echo "📦 Installing dependencies..."
+                                    pnpm install --frozen-lockfile
 
-                                        echo "⚙️ Building Vite app..."
-                                        pnpm build
+                                    echo "⚙️ Building Vite app..."
+                                    pnpm build
 
-                                        echo "📁 Preparing Docker build context..."
-                                        rm -rf "$WORKSPACE/build_output"
-                                        mkdir -p "$WORKSPACE/build_output"
+                                    echo "📁 Preparing Docker build context..."
+                                    rm -rf build_output
+                                    mkdir -p build_output
 
-                                        # 👉 Docker runtime cần các file này
-                                        cp -r build "$WORKSPACE/build_output/"
-                                        cp package.json pnpm-lock.yaml "$WORKSPACE/build_output/"
-                                        cp Dockerfile "$WORKSPACE/build_output/"
-                                    '''
-                                }
+                                    cp -r build build_output/
+                                    cp package.json pnpm-lock.yaml Dockerfile build_output/
+                                '''
                             }
                         }
                     }
@@ -79,55 +70,34 @@ pipeline {
         }
 
         // ------------------------------------------------------------
-        stage('Build & Push Docker Image') {
+        stage('Build & Push Docker Image (Docker Hub)') {
             agent none
             steps {
                 ansiColor('xterm') {
                     withCredentials([
                         usernamePassword(
-                            credentialsId: 'harbor-jenkins-agents',
-                            usernameVariable: 'AGENT_USER',
-                            passwordVariable: 'AGENT_PASS'
-                        ),
-                        usernamePassword(
-                            credentialsId: 'harbor-jenkins-agent',
-                            usernameVariable: 'HARBOR_USER',
-                            passwordVariable: 'HARBOR_PASS'
+                            credentialsId: 'dockerhub-credentials',
+                            usernameVariable: 'DOCKER_USER',
+                            passwordVariable: 'DOCKER_PASS'
                         )
                     ]) {
                         script {
-                            def image = "${HARBOR_REGISTRY}/${HARBOR_PROJECT_FE}/${IMAGE_NAME}:${IMAGE_TAG}"
-
-                            echo "🏷️ Image tag: ${IMAGE_TAG}"
-                            echo "📦 Image: ${image}"
-
-                            docker.withRegistry(
-                                "https://${HARBOR_REGISTRY}",
-                                "harbor-jenkins-agent"
+                            docker.image("docker:27-cli").inside(
+                                "-v /var/run/docker.sock:/var/run/docker.sock"
                             ) {
-                                docker.image(
-                                    "${HARBOR_PROJECT_AGENT}/jenkins-agent-docker:v27.0.3"
-                                ).inside(
-                                    "-v /var/run/docker.sock:/var/run/docker.sock"
-                                ) {
-                                    sh '''
-                                        set -eux
+                                sh '''
+                                    set -eux
 
-                                        docker build --pull \
-                                          -t "$HARBOR_REGISTRY/$HARBOR_PROJECT_FE/$IMAGE_NAME:$IMAGE_TAG" \
-                                          "$WORKSPACE/build_output"
+                                    echo "$DOCKER_PASS" | docker login \
+                                      -u "$DOCKER_USER" \
+                                      --password-stdin
 
-                                        echo "$HARBOR_PASS" | docker login \
-                                          "$HARBOR_REGISTRY" \
-                                          -u "$HARBOR_USER" \
-                                          --password-stdin
+                                    docker build -t "$IMAGE_FULL" build_output
 
-                                        docker push \
-                                          "$HARBOR_REGISTRY/$HARBOR_PROJECT_FE/$IMAGE_NAME:$IMAGE_TAG"
+                                    docker push "$IMAGE_FULL"
 
-                                        docker logout "$HARBOR_REGISTRY" || true
-                                    '''
-                                }
+                                    docker logout
+                                '''
                             }
                         }
                     }
@@ -139,40 +109,21 @@ pipeline {
         stage('Deploy to VPS') {
             steps {
                 ansiColor('xterm') {
-                    withCredentials([
-                        usernamePassword(
-                            credentialsId: 'harbor-jenkins-agent',
-                            usernameVariable: 'HARBOR_USER',
-                            passwordVariable: 'HARBOR_PASS'
-                        ),
-                        usernamePassword(
-                            credentialsId: 'cloudflare-service-token',
-                            usernameVariable: 'CF_CLIENT_ID',
-                            passwordVariable: 'CF_CLIENT_SECRET'
-                        )
-                    ]) {
-                        sshagent(credentials: ['vps-fink-key']) {
-                            sh '''
-                                set -eux
+                    sshagent(credentials: ['vps-fink-key']) {
+                        sh '''
+                            set -eux
 
-                                REMOTE="fink@linux.fink.io.vn"
-
-                                ssh -o StrictHostKeyChecking=no \
-                                  -o ProxyCommand="cloudflared access ssh \
-                                    --hostname linux.fink.io.vn \
-                                    --service-token-id $CF_CLIENT_ID \
-                                    --service-token-secret $CF_CLIENT_SECRET" \
-                                  "$REMOTE" "
-                                    export HARBOR_USER='$HARBOR_USER' &&
-                                    export HARBOR_PASS='$HARBOR_PASS' &&
-                                    export HARBOR_REGISTRY='$HARBOR_REGISTRY' &&
-                                    export HARBOR_PROJECT='$HARBOR_PROJECT_FE' &&
-                                    export IMAGE_NAME='$IMAGE_NAME' &&
-                                    export IMAGE_TAG='$IMAGE_TAG' &&
-                                    bash /home/fink/Workspace/crowdfunding/deploy_scripts/deploy_fe.sh
-                                  "
-                            '''
-                        }
+                            ssh -o StrictHostKeyChecking=no fink@linux.fink.io.vn "
+                                docker pull $IMAGE_FULL &&
+                                docker stop crowdfunding-fe || true &&
+                                docker rm crowdfunding-fe || true &&
+                                docker run -d \
+                                  --name crowdfunding-fe \
+                                  -p 8386:8386 \
+                                  --restart unless-stopped \
+                                  $IMAGE_FULL
+                            "
+                        '''
                     }
                 }
             }
@@ -181,7 +132,7 @@ pipeline {
 
     post {
         success {
-            echo "✅ Build & Deploy SUCCESS (tag: ${IMAGE_TAG})"
+            echo "✅ Build & Deploy SUCCESS → ${IMAGE_FULL}"
         }
         failure {
             echo "❌ Build or Deploy FAILED"

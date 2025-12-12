@@ -14,8 +14,6 @@ pipeline {
     }
 
     stages {
-
-        // ------------------------------------------------------------
         stage('Checkout') {
             steps {
                 ansiColor('xterm') {

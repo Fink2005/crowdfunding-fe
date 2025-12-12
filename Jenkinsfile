@@ -60,7 +60,8 @@ pipeline {
                                     mkdir -p build_output
 
                                     cp -r build build_output/
-                                    cp package.json pnpm-lock.yaml Dockerfile build_output/
+                                    cp package.json pnpm-lock.yaml Dockerfile vite.config.ts build_output/
+
                                 '''
                             }
                         }

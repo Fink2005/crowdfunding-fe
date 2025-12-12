@@ -106,28 +106,49 @@ pipeline {
         }
 
         // ------------------------------------------------------------
-        stage('Deploy to VPS') {
-            steps {
-                ansiColor('xterm') {
-                    sshagent(credentials: ['vps-fink-key']) {
-                        sh '''
-                            set -eux
+    stage('Deploy to VPS') {
+    steps {
+        ansiColor('xterm') {
+            withCredentials([
+                usernamePassword(
+                    credentialsId: 'dockerhub-credentials',
+                    usernameVariable: 'DOCKERHUB_USER',
+                    passwordVariable: 'DOCKERHUB_PASS'
+                ),
 
-                            ssh -o StrictHostKeyChecking=no fink@linux.fink.io.vn "
-                                docker pull $IMAGE_FULL &&
-                                docker stop crowdfunding-fe || true &&
-                                docker rm crowdfunding-fe || true &&
-                                docker run -d \
-                                  --name crowdfunding-fe \
-                                  -p 8386:8386 \
-                                  --restart unless-stopped \
-                                  $IMAGE_FULL
-                            "
-                        '''
-                    }
+                usernamePassword(
+                    credentialsId: 'cloudflare-service-token',
+                    usernameVariable: 'CF_CLIENT_ID',
+                    passwordVariable: 'CF_CLIENT_SECRET'
+                )
+            ]) {
+                sshagent(credentials: ['vps-fink-key']) {
+                    sh '''
+                        set -eux
+
+                        REMOTE="fink@linux.fink.io.vn"
+
+                        echo "🚀 Deploying to VPS via Cloudflare Tunnel..."
+
+                        ssh -o StrictHostKeyChecking=no \
+                          -o ProxyCommand="cloudflared access ssh \
+                            --hostname linux.fink.io.vn \
+                            --service-token-id $CF_CLIENT_ID \
+                            --service-token-secret $CF_CLIENT_SECRET" \
+                          "$REMOTE" "
+                            export DOCKERHUB_USER='$DOCKERHUB_USER' &&
+                            export DOCKERHUB_PASS='$DOCKERHUB_PASS' &&
+                            export IMAGE_NAME='$IMAGE_NAME' &&
+                            export IMAGE_TAG='$IMAGE_TAG' &&
+                            bash /home/fink/Workspace/crowdfunding/deploy_scripts/deploy_fe.sh
+                          "
+                    '''
                 }
             }
         }
+    }
+}
+
     }
 
     post {

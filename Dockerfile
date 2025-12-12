@@ -1,38 +1,20 @@
-FROM node:20-alpine AS builder
-RUN npm install -g pnpm
-WORKDIR /app
-
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install
-
-COPY . .
-RUN pnpm run build
-
-
-
+# Dockerfile
 FROM node:20-alpine
 
-# Install pnpm
-RUN npm install -g pnpm
-
-# Create user
-RUN adduser -D crowdfunding
-
 WORKDIR /app
 
-# Copy files
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install
+# Static file server
+RUN npm install -g serve
 
-COPY --from=builder /app/build ./build
-COPY --from=builder /app/app ./app
-COPY vite.config.ts react-router.config.ts ./
+# Copy artifact từ Jenkins
+COPY build ./build
 
-# *** FIX QUAN TRỌNG: CHOWN quyền /app ***
-RUN chown -R crowdfunding:crowdfunding /app
+# Non-root user
+RUN adduser -D crowdfunding \
+  && chown -R crowdfunding:crowdfunding /app
 
-# Switch user AFTER permissions OK
 USER crowdfunding
 
 EXPOSE 8386
-CMD ["pnpm", "exec", "vite", "preview", "--host"]
+
+CMD ["serve", "-s", "build", "-l", "8386"]

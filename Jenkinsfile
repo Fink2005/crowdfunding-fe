@@ -37,7 +37,7 @@ pipeline {
                         script {
                             docker.withRegistry(
                                 "https://${HARBOR_REGISTRY}",
-                                "harbor-jenkins-agents"
+                                "harbor-crowdfunding-agent"
                             ) {
                                 docker.image(
                                     "${HARBOR_PROJECT_AGENT}/jenkins-agent-node-pnpm:v24.9.0-pnpm10.18.0"
@@ -78,7 +78,7 @@ pipeline {
                 ansiColor('xterm') {
                     withCredentials([
                         usernamePassword(
-                            credentialsId: 'harbor-jenkins-agents',
+                            credentialsId: 'harbor-crowdfunding-agent',
                             usernameVariable: 'AGENT_USER',
                             passwordVariable: 'AGENT_PASS'
                         ),
@@ -96,7 +96,7 @@ pipeline {
 
                             docker.withRegistry(
                                 "https://${HARBOR_REGISTRY}",
-                                "harbor-jenkins-agents"
+                                "harbor-crowdfunding-agent"
                             ) {
                                 docker.image(
                                     "${HARBOR_PROJECT_AGENT}/jenkins-agent-docker:v27.0.3"
@@ -162,7 +162,7 @@ pipeline {
                                     export HARBOR_PROJECT='$HARBOR_PROJECT_FE' &&
                                     export IMAGE_NAME='$IMAGE_NAME' &&
                                     export IMAGE_TAG='$IMAGE_TAG' &&
-                                    bash /home/fink/Workspace/fundhive/deploy_scripts/deploy_fe.sh
+                                    bash /home/fink/Workspace/crowdfunding/deploy_scripts/deploy_fe.sh
                                   "
                             '''
                         }

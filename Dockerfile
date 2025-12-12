@@ -1,11 +1,19 @@
-FROM node:20-alpine
+FROM nginx:alpine
 
-WORKDIR /app
+# Install envsubst for environment variable substitution
+RUN apk add --no-cache gettext
 
-COPY node_modules ./node_modules
-COPY build ./build
-COPY package.json vite.config.ts ./
+# Copy built files
+COPY build/client /usr/share/nginx/html
+
+# Copy nginx configuration template
+COPY nginx.conf /etc/nginx/templates/default.conf.template
+
+# Set default environment variable
+ENV VITE_API_BASE_URL=http://localhost:3000
 
 EXPOSE 8386
 
-CMD ["./node_modules/.bin/vite", "preview", "--host", "--port", "8386"]
+# nginx will automatically process templates in /etc/nginx/templates/
+# and substitute environment variables before starting
+CMD ["nginx", "-g", "daemon off;"]

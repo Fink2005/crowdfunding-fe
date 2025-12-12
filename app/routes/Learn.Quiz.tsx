@@ -153,7 +153,6 @@ export default function Learn() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          {/* Back Button */}
           <Link
             to="/learn"
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
@@ -173,7 +172,6 @@ export default function Learn() {
             </p>
           </div>
 
-          {/* Language Selection */}
           <div className="mb-8 flex justify-center gap-4">
             <select
               value={sourceLang}

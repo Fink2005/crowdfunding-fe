@@ -5,7 +5,7 @@ pipeline {
         IMAGE_NAME            = "fundhive-fe"
         HARBOR_REGISTRY       = "registry.fink.io.vn"
         HARBOR_PROJECT_FE     = "crowdfunding"
-        HARBOR_PROJECT_AGENT = "harbor-crowdfunding-agent"
+        HARBOR_PROJECT_AGENT = "jenkins-agents"
         IMAGE_TAG             = "latest"
     }
 

@@ -1,15 +1,11 @@
 FROM node:20-alpine
 
 WORKDIR /app
-RUN npm install -g pnpm
 
-# chỉ prod deps (vite phải nằm trong dependencies)
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --prod
-
-# copy kết quả đã build từ Jenkins
+COPY node_modules ./node_modules
 COPY build ./build
-COPY vite.config.ts ./
+COPY package.json vite.config.ts ./
 
 EXPOSE 8386
-CMD ["pnpm", "exec", "vite", "preview", "--host", "--port", "8386"]
+
+CMD ["./node_modules/.bin/vite", "preview", "--host", "--port", "8386"]

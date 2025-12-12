@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME           = "fundhive-fe"
+        IMAGE_NAME           = "crowdfunding-fe"
         IMAGE_TAG            = "latest"
 
         HARBOR_REGISTRY      = "registry.fink.io.vn"
@@ -85,12 +85,12 @@ pipeline {
                 ansiColor('xterm') {
                     withCredentials([
                         usernamePassword(
-                            credentialsId: 'harbor-jenkins-agent',
+                            credentialsId: 'harbor-jenkins-agents',
                             usernameVariable: 'AGENT_USER',
                             passwordVariable: 'AGENT_PASS'
                         ),
                         usernamePassword(
-                            credentialsId: 'harbor-registry-credentials',
+                            credentialsId: 'harbor-jenkins-agent',
                             usernameVariable: 'HARBOR_USER',
                             passwordVariable: 'HARBOR_PASS'
                         )
@@ -141,7 +141,7 @@ pipeline {
                 ansiColor('xterm') {
                     withCredentials([
                         usernamePassword(
-                            credentialsId: 'harbor-registry-credentials',
+                            credentialsId: 'harbor-jenkins-agent',
                             usernameVariable: 'HARBOR_USER',
                             passwordVariable: 'HARBOR_PASS'
                         ),

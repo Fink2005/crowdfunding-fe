@@ -7,10 +7,12 @@ export function ClientOnly({ children }: { children: ReactNode }) {
   const [hasMounted, setHasMounted] = useState(false)
 
   useEffect(() => {
+    console.log('✅ ClientOnly mounted!')
     setHasMounted(true)
   }, [])
 
   if (!hasMounted) {
+    console.log('⏳ ClientOnly waiting for mount...')
     return null
   }
 
@@ -24,6 +26,9 @@ export function Web3ClientProvider({
 }: {
   children: ReactNode
 }) {
+  console.log('🔧 Web3ClientProvider rendering...')
+  console.log('📋 Wagmi config:', wagmiConfig)
+  
   return (
     <ClientOnly>
       <WagmiProvider config={wagmiConfig}>

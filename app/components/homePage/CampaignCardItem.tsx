@@ -9,11 +9,33 @@ type Props = {
 }
 
 function CampaignCardItem({ campaign }: Props) {
-  const { data } = useGetCampaignContract(campaign.campaignId)
+  console.log(`🎯 CampaignCardItem rendering for campaign ${campaign.campaignId}:`, campaign.title)
+  
+  const { data, isLoading, error } = useGetCampaignContract(campaign.campaignId)
+  
+  console.log(`📊 Campaign ${campaign.campaignId} contract state:`, {
+    hasData: !!data,
+    isLoading,
+    hasError: !!error,
+    errorMessage: error?.message
+  })
 
-  if (!data) {
+  if (isLoading) {
+    console.log(`⏳ Campaign ${campaign.campaignId}: Still loading from contract...`)
     return <CampaignCardItemSkeleton />
   }
+
+  if (error) {
+    console.error(`❌ Campaign ${campaign.campaignId}: Contract error:`, error)
+    return <CampaignCardItemSkeleton />
+  }
+
+  if (!data) {
+    console.warn(`⚠️ Campaign ${campaign.campaignId}: No data from contract`)
+    return <CampaignCardItemSkeleton />
+  }
+  
+  console.log(`✅ Campaign ${campaign.campaignId}: Rendering with data!`)
 
   const [creator, goal, deadline, totalFunded, claimed] = data
   const progress = Math.round((Number(totalFunded) / Number(goal)) * 100)

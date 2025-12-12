@@ -3,9 +3,10 @@ pipeline {
 
     environment {
         IMAGE_NAME            = "fundhive-fe"
-        HARBOR_REGISTRY       = "harbor.fink.io.vn"
+        HARBOR_REGISTRY       = "registry.fink.io.vn"
         HARBOR_PROJECT_FE     = "crowdfunding"
-        HARBOR_PROJECT_AGENTS = "ci-agents"
+        HARBOR_PROJECT_AGENT = "harbor-crowdfunding-agent"
+        IMAGE_TAG             = "latest"
     }
 
     options {
@@ -14,6 +15,8 @@ pipeline {
     }
 
     stages {
+
+        // ------------------------------------------------------------
         stage('Checkout') {
             steps {
                 ansiColor('xterm') {
@@ -24,7 +27,7 @@ pipeline {
         }
 
         // ------------------------------------------------------------
-        stage('Build App') {
+        stage('Build App (Vite)') {
             agent none
             steps {
                 ansiColor('xterm') {
@@ -34,7 +37,7 @@ pipeline {
                             "harbor-jenkins-agents"
                         ) {
                             docker.image(
-                                "${HARBOR_PROJECT_AGENTS}/jenkins-agent-node-pnpm:v24.9.0-pnpm10.18.0"
+                                "${HARBOR_PROJECT_AGENT}/jenkins-agent-node-pnpm:v24.9.0-pnpm10.18.0"
                             ).inside(
                                 "-v /home/fink/Workspace/docker/jenkins/cache/pnpm:/root/.pnpm-store"
                             ) {
@@ -45,14 +48,14 @@ pipeline {
                                     echo "📦 Installing dependencies..."
                                     pnpm install --frozen-lockfile
 
-                                    echo "⚙️ Building Next.js app..."
+                                    echo "⚙️ Building Vite app..."
                                     pnpm build
 
                                     echo "📁 Checking build output..."
-                                    test -d .next/standalone
+                                    test -d build
 
                                     mkdir -p "$WORKSPACE/build_output"
-                                    cp -r .next public package.json Dockerfile "$WORKSPACE/build_output/"
+                                    cp -r build Dockerfile "$WORKSPACE/build_output/"
                                 '''
                             }
                         }
@@ -79,12 +82,9 @@ pipeline {
                         )
                     ]) {
                         script {
+                            def image = "${HARBOR_REGISTRY}/${HARBOR_PROJECT_FE}/${IMAGE_NAME}:${IMAGE_TAG}"
 
-                            env.IMAGE_TAG = 'latest'
-
-                            def image = "${HARBOR_REGISTRY}/${HARBOR_PROJECT_FE}/${IMAGE_NAME}:${tag}"
-
-                            echo "🏷️ Image tag: ${tag}"
+                            echo "🏷️ Image tag: ${IMAGE_TAG}"
                             echo "📦 Image: ${image}"
 
                             docker.withRegistry(
@@ -92,7 +92,7 @@ pipeline {
                                 "harbor-jenkins-agents"
                             ) {
                                 docker.image(
-                                    "${HARBOR_PROJECT_AGENTS}/jenkins-agent-docker:v27.0.3"
+                                    "${HARBOR_PROJECT_AGENT}/jenkins-agent-docker:v27.0.3"
                                 ).inside(
                                     "-v /var/run/docker.sock:/var/run/docker.sock"
                                 ) {
@@ -167,7 +167,7 @@ pipeline {
 
     post {
         success {
-            echo "✅ Build & Deploy SUCCESS (tag: ${env.IMAGE_TAG})"
+            echo "✅ Build & Deploy SUCCESS (tag: ${IMAGE_TAG})"
         }
         failure {
             echo "❌ Build or Deploy FAILED"

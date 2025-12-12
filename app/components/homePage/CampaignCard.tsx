@@ -5,13 +5,23 @@ import { useEffect } from 'react'
 import { useInView } from 'react-intersection-observer'
 
 const CampaignCard = () => {
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, error } =
     useGetCampaignMetadata()
 
   const { ref: refView, inView } = useInView({
     threshold: 0,
     triggerOnce: false
   })
+
+  useEffect(() => {
+    console.log('🏠 CampaignCard mounted', {
+      isLoading,
+      hasData: !!data,
+      pagesCount: data?.pages?.length,
+      campaignsCount: data?.pages.flatMap((page) => page.campaigns).length,
+      error: error?.message
+    })
+  }, [data, isLoading, error])
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
@@ -21,6 +31,7 @@ const CampaignCard = () => {
   }, [inView, hasNextPage, fetchNextPage])
 
   if (isLoading) {
+    console.log('⏳ CampaignCard: Still loading...')
     return (
       <div className="flex justify-center items-center min-h-[400px]">
         <LoaderCircle className="animate-spin" size={48} />
@@ -28,7 +39,20 @@ const CampaignCard = () => {
     )
   }
 
+  if (error) {
+    console.error('❌ CampaignCard: Error loading campaigns', error)
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <div className="text-center">
+          <p className="text-xl text-red-500 mb-2">Error loading campaigns</p>
+          <p className="text-muted-foreground">{error.message}</p>
+        </div>
+      </div>
+    )
+  }
+
   const campaigns = data?.pages.flatMap((page) => page.campaigns) || []
+  console.log('✅ CampaignCard: Rendering campaigns', campaigns.length)
   const totalCampaigns = campaigns.length
   return (
     <div className="container mx-auto px-4 py-8">

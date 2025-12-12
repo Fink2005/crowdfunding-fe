@@ -8,16 +8,23 @@ export const useGetCampaignMetadata = (initialPage = 1) => {
     queryFn: async ({
       pageParam = initialPage
     }): Promise<CampaignPagination> => {
-      const { data } = await campaignRequests.getCampaigns(pageParam as number)
+      console.log('📡 Fetching campaigns from API, page:', pageParam)
+      try {
+        const { data } = await campaignRequests.getCampaigns(pageParam as number)
+        console.log('✅ API Response:', { campaignsCount: data?.campaigns?.length, page: data?.currentPage })
 
-      if (data instanceof Error) {
-        throw data
-      }
+        if (data instanceof Error) {
+          throw data
+        }
 
-      if (!data) {
-        throw new Error('Response is null')
+        if (!data) {
+          throw new Error('Response is null')
+        }
+        return data
+      } catch (error) {
+        console.error('❌ API Error:', error)
+        throw error
       }
-      return data
     },
     initialPageParam: initialPage,
     getNextPageParam: (lastPage: CampaignPagination) => {

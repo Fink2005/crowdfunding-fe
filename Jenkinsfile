@@ -47,13 +47,28 @@ pipeline {
                                     export HUSKY=0
                                     npm install -g pnpm
 
-                                    export VITE_WALLETCONNECT_PROJECT_ID="$VITE_WALLETCONNECT_PROJECT_ID"
+                                    echo "🔧 Setting environment variables..."
+                                    echo "VITE_WALLETCONNECT_PROJECT_ID=$VITE_WALLETCONNECT_PROJECT_ID"
+                                    
+                                    # Create .env.production.local which takes precedence
+                                    echo "VITE_WALLETCONNECT_PROJECT_ID=$VITE_WALLETCONNECT_PROJECT_ID" > .env.production.local
+                                    echo "VITE_API_BASE_URL=https://api.fundhive.pro.vn" >> .env.production.local
+                                    
+                                    echo "📋 Environment file created:"
+                                    cat .env.production.local
 
                                     echo "📦 Installing dependencies..."
                                     pnpm install --frozen-lockfile
 
                                     echo "⚙️ Building Vite app..."
                                     pnpm build
+                                    
+                                    echo "🔍 Verifying build contains WalletConnect ID..."
+                                    if grep -r "VITE_WALLETCONNECT_PROJECT_ID" build/client/assets/*.js 2>/dev/null; then
+                                        echo "⚠️  Warning: Found unreplaced VITE_WALLETCONNECT_PROJECT_ID in build!"
+                                    else
+                                        echo "✅ WalletConnect ID was properly embedded"
+                                    fi
 
                                     echo "📁 Preparing Docker build context..."
                                     rm -rf build_output

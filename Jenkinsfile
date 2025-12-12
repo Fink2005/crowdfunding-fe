@@ -79,12 +79,8 @@ pipeline {
                         )
                     ]) {
                         script {
-                            // 🎯 TAG đơn giản
-                            def tag = params.TAG?.trim()
-                                ? params.TAG.trim()
-                                : "build-${env.BUILD_ID}"
 
-                            env.IMAGE_TAG = tag
+                            env.IMAGE_TAG = 'latest'
 
                             def image = "${HARBOR_REGISTRY}/${HARBOR_PROJECT_FE}/${IMAGE_NAME}:${tag}"
 

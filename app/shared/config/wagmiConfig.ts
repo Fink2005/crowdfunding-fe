@@ -1,6 +1,6 @@
 // src/lib/wagmiConfig.ts
 import { getDefaultConfig } from '@rainbow-me/rainbowkit'
-import { http } from 'viem'
+import { fallback, http } from 'viem'
 import { sepolia } from 'wagmi/chains'
 
 // Get WalletConnect Project ID
@@ -16,8 +16,14 @@ export const wagmiConfig = getDefaultConfig({
   appName: 'Fundhive DApp',
   projectId: projectId || 'dummy-fallback-id',
   chains: [sepolia],
-  // Add custom RPC endpoints
+  // Use multiple public RPC endpoints with fallback
+  // If one fails, it will automatically try the next one
   transports: {
-    [sepolia.id]: http('https://eth-sepolia.g.alchemy.com/v2/demo')
+    [sepolia.id]: fallback([
+      http('https://ethereum-sepolia-rpc.publicnode.com'),
+      http('https://eth-sepolia.public.blastapi.io'),
+      http('https://rpc2.sepolia.org'),
+      http('https://rpc.sepolia.org')
+    ])
   }
 })

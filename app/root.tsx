@@ -7,17 +7,15 @@ import {
   ScrollRestoration
 } from 'react-router'
 
-import { RainbowKitClientProvider } from '@/components/ClientOnly'
+import { Web3ClientProvider } from '@/components/ClientOnly'
 import FuzzyText from '@/components/FuzzyText'
 import TanstackProvider from '@/components/providers/TanstackProvider'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
 import { Toaster } from '@/components/ui/sonner'
 import '@rainbow-me/rainbowkit/styles.css'
 import type { ReactNode } from 'react'
-import { WagmiProvider } from 'wagmi'
 import type { Route } from './+types/root'
 import './app.css'
-import { wagmiConfig } from './shared/config/wagmiConfig'
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -42,16 +40,14 @@ export function Layout({ children }: { children: ReactNode }) {
         <Links />
       </head>
       <body>
-        <WagmiProvider config={wagmiConfig}>
-          <TanstackProvider>
-            <RainbowKitClientProvider>
-              <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-                {children}
-                <Toaster position="top-right" />
-              </ThemeProvider>
-            </RainbowKitClientProvider>
-          </TanstackProvider>
-        </WagmiProvider>
+        <TanstackProvider>
+          <Web3ClientProvider>
+            <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+              {children}
+              <Toaster position="top-right" />
+            </ThemeProvider>
+          </Web3ClientProvider>
+        </TanstackProvider>
         <ScrollRestoration />
         <Scripts />
       </body>

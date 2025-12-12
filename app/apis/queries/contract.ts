@@ -15,19 +15,6 @@ export const useGetCampaignContract = (id: number) => {
     }
   })
 
-  // Debug logging
-  if (result.error) {
-    console.error(`❌ Contract read failed for campaign ${id}:`, result.error)
-  }
-
-  if (result.isLoading) {
-    console.log(`⏳ Loading campaign ${id} from contract...`)
-  }
-
-  if (result.data) {
-    console.log(`✅ Campaign ${id} data:`, result.data)
-  }
-
   return {
     ...result,
     data: result.data as ContractCampaign | undefined,

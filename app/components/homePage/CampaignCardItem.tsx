@@ -1,5 +1,4 @@
 import { useGetCampaignContract } from '@/apis/queries/contract'
-import { CampaignCardItemSkeleton } from '@/components/homePage/CampaignCardItemSkeleton'
 import type { CampaignMetadata } from '@/types/campaign'
 import { Link } from 'react-router'
 import { formatEther } from 'viem'
@@ -9,34 +8,11 @@ type Props = {
 }
 
 function CampaignCardItem({ campaign }: Props) {
-  console.log(`🎯 CampaignCardItem rendering for campaign ${campaign.campaignId}:`, campaign.title)
-  
   const { data, isLoading, error } = useGetCampaignContract(campaign.campaignId)
-  
-  console.log(`📊 Campaign ${campaign.campaignId} contract state:`, {
-    hasData: !!data,
-    isLoading,
-    hasError: !!error,
-    errorMessage: error?.message
-  })
 
   // Always show campaign card with API data
   // Contract data will be loaded progressively
   const hasContractData = !!data && !error
-  
-  if (isLoading) {
-    console.log(`⏳ Campaign ${campaign.campaignId}: Still loading from contract...`)
-  }
-
-  if (error) {
-    console.error(`❌ Campaign ${campaign.campaignId}: Contract error:`, error)
-  }
-
-  if (!data) {
-    console.warn(`⚠️ Campaign ${campaign.campaignId}: No contract data yet, showing API data only`)
-  } else {
-    console.log(`✅ Campaign ${campaign.campaignId}: Rendering with contract data!`)
-  }
 
   // Use contract data if available, otherwise show placeholder values
   const [creator, goal, deadline, totalFunded, claimed] = data || [
@@ -46,8 +22,10 @@ function CampaignCardItem({ campaign }: Props) {
     BigInt(0),
     false
   ]
-  const progress = goal > 0 ? Math.round((Number(totalFunded) / Number(goal)) * 100) : 0
-  const isDeadlinePassed = deadline > 0 ? Date.now() > Number(deadline) * 1000 : false
+  const progress =
+    goal > 0 ? Math.round((Number(totalFunded) / Number(goal)) * 100) : 0
+  const isDeadlinePassed =
+    deadline > 0 ? Date.now() > Number(deadline) * 1000 : false
 
   return (
     <div className="border rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
@@ -94,7 +72,9 @@ function CampaignCardItem({ campaign }: Props) {
             </>
           ) : (
             <div className="text-sm text-muted-foreground italic">
-              {isLoading ? '⏳ Loading funding data...' : '📊 Contract data unavailable'}
+              {isLoading
+                ? '⏳ Loading funding data...'
+                : '📊 Contract data unavailable'}
             </div>
           )}
         </div>

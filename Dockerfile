@@ -1,16 +1,13 @@
 FROM node:20-alpine
 
 WORKDIR /app
-RUN npm install -g pnpm
-RUN adduser -D crowdfunding
 
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --prod
+# cài server tĩnh nhẹ
+RUN npm install -g serve
 
+# copy build output
 COPY build ./build
 
-RUN chown -R crowdfunding:crowdfunding /app
-USER crowdfunding
-
 EXPOSE 8386
-CMD ["pnpm", "exec", "vite", "preview", "--host"]
+
+CMD ["serve", "-s", "build", "-l", "8386"]

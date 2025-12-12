@@ -10,7 +10,7 @@ COPY build/client /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/templates/default.conf.template
 
 # Set default environment variable
-ENV VITE_API_BASE_URL=http://localhost:3000
+ENV VITE_API_BASE_URL=http://localhost:5173
 
 EXPOSE 8386
 

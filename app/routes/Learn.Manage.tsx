@@ -15,7 +15,6 @@ export default function ManageVocabulary() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center space-y-4">
-            <div className="text-6xl animate-spin">📚</div>
             <p className="text-xl text-muted-foreground">
               Loading vocabularies...
             </p>

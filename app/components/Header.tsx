@@ -12,7 +12,7 @@ const Header = () => {
     <header className="h-[60px] fixed top-0 w-full border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-4 md:px-6 bg-white dark:bg-[#030712] z-50">
       <NavLink to="/" onClick={() => setIsMenuOpen(false)}>
         <h1 className="text-lg md:text-xl font-semibold m-0 dark:text-white">
-          fundhive.
+          crowdfunding.
         </h1>
       </NavLink>
 
